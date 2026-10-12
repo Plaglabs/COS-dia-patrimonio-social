@@ -554,6 +554,30 @@ llegan vacíos, y vacío quiere decir sin token CSRF, así que lo siguiente es u
 middleware `AvisaSiLaSubidaEsDemasiadoGrande`, que va **el primero del grupo
 `web`**, antes del CSRF, y lo convierte en un aviso que se entiende.
 
+### El listado de actividades se lee como agenda; el calendario, no
+
+`/actividades` en lista y el carrusel del home ordenan **por fecha de la
+actividad**, de la más cercana a la más lejana (`Activity::porFecha()`), y no
+enseñan lo que ya pasó. El listado sí enseña las «disponibles de forma
+permanente», al final (`vigentes()`); el carrusel no (`conFechaProxima()`),
+porque enseña lo que viene y una permanente no tiene día. El total que pinta el
+listado sale de la misma consulta, así que siempre cuadra con lo que se ve.
+
+El calendario comparte los filtros pero **no** este recorte: cada actividad se
+queda en su mes, también las pasadas.
+
+### Las preguntas frecuentes son filas, no una página de HTML
+
+Cada pregunta vive en `faq_preguntas`, con su pestaña («Personas» u
+«Organizaciones»), su sección, su orden y si se ve. La página
+`/preguntas-frecuentes` sigue siendo una página suelta —título, URL,
+descripción, visible—, pero su cuerpo lo pinta `PageController` desde esa
+tabla, con la pestaña en la URL (`?pestana=organizaciones`). Una sección existe
+mientras alguna pregunta la nombre, y sale en el orden de su primera pregunta.
+
+El `contenido` de la página se quedó como estaba al pasar a filas y sólo se
+pinta si la tabla está vacía. Editarlo no cambia nada mientras haya preguntas.
+
 ---
 
 ## 8. Cómo se comprueba que algo funciona

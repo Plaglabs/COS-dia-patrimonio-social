@@ -57,10 +57,16 @@ class ActivityController extends Controller
             ]);
         }
 
+        // El listado se lee como agenda (tanda del 12/10): sólo lo que todavía
+        // se puede hacer, por fecha de la actividad, en el orden del
+        // calendario. El calendario no lleva este filtro: cada actividad se
+        // queda en su mes, también las pasadas. El total que pinta la vista
+        // sale de esta misma consulta, así que cuadra con lo que se ve.
         return view('public.activities.index', $comunes + [
             'actividades' => $filtradas
+                ->vigentes()
                 ->with(['commune', 'region', 'terms', 'organization'])
-                ->recientesPrimero()
+                ->porFecha()
                 ->paginate(12)
                 ->withQueryString(),
         ]);

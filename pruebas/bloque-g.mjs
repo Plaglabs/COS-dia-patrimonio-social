@@ -238,7 +238,9 @@ sql("DELETE FROM taxonomy_terms WHERE nombre LIKE 'ZZTerm%'");
 await p.goto(`${B}/admin/taxonomias?grupo=tema`, { waitUntil: 'networkidle0' });
 di('el listado carga con sus pestañas', await p.evaluate(() => document.querySelectorAll('.tab').length >= 4));
 
-await escribir('main aside [name=nombre]', 'ZZTerm de prueba');
+di('el listado ya no lleva el formulario al lado', await p.evaluate(() => !document.querySelector('main aside')));
+await p.goto(`${B}/admin/taxonomias/nuevo?grupo=tema`, { waitUntil: 'networkidle0' });
+await escribir('main [data-crear-termino] [name=nombre]', 'ZZTerm de prueba');
 await pulsar('Agregar');
 di('crear un término', sql("SELECT COUNT(*) FROM taxonomy_terms WHERE nombre='ZZTerm de prueba'") === '1');
 
@@ -313,9 +315,11 @@ sql("DELETE FROM users WHERE email='zzprueba@ejemplo.test'");
 await p.goto(`${B}/admin/usuarios?rol=organizer`, { waitUntil: 'networkidle0' });
 di('el listado carga', await p.evaluate(() => !!document.querySelector('.panel-tabla')));
 
-await escribir('main aside [name=name]', 'ZZ Usuario Prueba');
-await escribir('main aside [name=email]', 'zzprueba@ejemplo.test');
-await escribir('main aside [name=password]', CLAVE_FIXTURE);
+di('el listado ya no lleva el formulario al lado', await p.evaluate(() => !document.querySelector('main aside')));
+await p.goto(`${B}/admin/usuarios/nuevo?rol=organizer`, { waitUntil: 'networkidle0' });
+await escribir('main [data-crear-usuario] [name=name]', 'ZZ Usuario Prueba');
+await escribir('main [data-crear-usuario] [name=email]', 'zzprueba@ejemplo.test');
+await escribir('main [data-crear-usuario] [name=password]', CLAVE_FIXTURE);
 await pulsar('Crear usuario');
 const idUser = sql("SELECT COALESCE((SELECT id FROM users WHERE email='zzprueba@ejemplo.test'),0)");
 di('crear un usuario', idUser !== '0', `id ${idUser}`);

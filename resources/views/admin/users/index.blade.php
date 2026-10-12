@@ -9,10 +9,14 @@
     @section('miga', 'Todos')
 @endif
 
-@section('content')
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;align-items:start;">
+{{-- Crear va en su propia pantalla (12/10): el formulario fijo a la derecha
+     estrechaba la tabla hasta cortar la columna de acciones. --}}
+@section('actions')
+    <a class="btn btn-primary btn-sm" href="{{ route('admin.users.create', array_filter(['rol' => request('rol')])) }}">Crear usuario</a>
+@endsection
 
-    <section style="min-width:0;grid-column:span 2;">
+@section('content')
+<section style="min-width:0;">
 
         <x-panel.filtros
             buscar="Buscar por nombre o correo…">
@@ -93,41 +97,5 @@
                 </tr>
             @endforeach
         </x-panel.tabla>
-    </section>
-
-    <aside class="card" style="padding:24px;">
-        <h2 style="font-size:16px;font-weight:700;margin:0 0 16px;">Nuevo usuario</h2>
-
-        <form method="POST" action="{{ route('admin.users.store') }}" style="display:flex;flex-direction:column;gap:14px;"
-              data-crear-usuario
-              x-data="organizacionDeUsuario({ rol: @js(old('role', 'organizer')), buscarOrg: @js(old('org_nombre', '')) })">
-            @csrf
-            <div>
-                <label class="helper" for="u-name" style="display:block;margin-bottom:6px;font-weight:600;">Nombre</label>
-                <input class="fld @error('name') is-invalid @enderror" type="text" id="u-name" name="name" value="@viejo('name')" required>
-                @error('name') <span class="field-error">{{ $message }}</span> @enderror
-            </div>
-            <div>
-                <label class="helper" for="u-email" style="display:block;margin-bottom:6px;font-weight:600;">Correo</label>
-                <input class="fld @error('email') is-invalid @enderror" type="email" id="u-email" name="email" value="@viejo('email')" required>
-                @error('email') <span class="field-error">{{ $message }}</span> @enderror
-            </div>
-            <div>
-                <label class="helper" for="u-password" style="display:block;margin-bottom:6px;font-weight:600;">Contraseña</label>
-                <input class="fld @error('password') is-invalid @enderror" type="password" id="u-password" name="password" required autocomplete="new-password">
-                <span class="helper">Mínimo 8 caracteres.</span>
-                @error('password') <span class="field-error">{{ $message }}</span> @enderror
-            </div>
-            <div>
-                <label class="helper" for="u-role" style="display:block;margin-bottom:6px;font-weight:600;">Rol</label>
-                <select class="fld" id="u-role" name="role" x-model="rol">
-                    <option value="organizer">Organizador</option>
-                    <option value="admin">Administración</option>
-                </select>
-            </div>
-            @include('admin.users._organizacion')
-            <button type="submit" class="btn btn-primary" style="justify-content:center;">Crear usuario</button>
-        </form>
-    </aside>
-</div>
+</section>
 @endsection

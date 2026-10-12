@@ -10,6 +10,11 @@
     la que decide si el botón de borrar sirve de algo.
 --}}
 
+{{-- Agregar va en su propia pantalla (12/10), como Crear usuario. --}}
+@section('actions')
+    <a class="btn btn-primary btn-sm" href="{{ route('admin.taxonomies.create', ['grupo' => $grupo]) }}">Agregar término</a>
+@endsection
+
 @section('content')
 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;">
     @foreach ($grupos as $clave => $label)
@@ -23,8 +28,7 @@
     </div>
 @endif
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;align-items:start;">
-    <div style="min-width:0;grid-column:span 2;">
+<div style="min-width:0;">
 
         <x-panel.filtros
             buscar="Buscar un término…"
@@ -63,7 +67,7 @@
                 :filas="$terminos"
                 :columnas="$puedeReordenar ? 6 : 5"
                 que="términos"
-                :vacio="request()->hasAny(['q', 'estado', 'papelera']) ? 'Ningún término coincide con el filtro.' : 'Sin términos en este grupo. Agrega el primero aquí al lado.'">
+                :vacio="request()->hasAny(['q', 'estado', 'papelera']) ? 'Ningún término coincide con el filtro.' : 'Sin términos en este grupo. Agrega el primero con «Agregar término».'">
 
                 <x-slot:cabecera>
                     @if ($puedeReordenar)
@@ -140,19 +144,5 @@
                 @endforeach
             </x-panel.tabla>
         </div>
-    </div>
-
-    <aside class="card" style="padding:24px;">
-        <h2 style="font-size:16px;font-weight:700;margin:0 0 16px;">Agregar término</h2>
-        <form method="POST" action="{{ route('admin.taxonomies.store') }}" style="display:flex;flex-direction:column;gap:14px;">
-            @csrf
-            <input type="hidden" name="grupo" value="{{ $grupo }}">
-
-            <x-panel.campo nombre="nombre" label="Nombre" reglas="required|string|max:255" />
-            <x-panel.campo nombre="orden" label="Orden" tipo="number" :valor="$terminos->total() + 1" reglas="nullable|integer|min:0" />
-
-            <button type="submit" class="btn btn-primary" style="justify-content:center;" data-cargando="Agregando…">Agregar</button>
-        </form>
-    </aside>
 </div>
 @endsection

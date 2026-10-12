@@ -56,6 +56,42 @@ class Exportador
     }
 
     /**
+     * Un Excel con varias hojas, cada una con sus cabeceras en negrita: la
+     * ficha de una organización y sus cuentas (tanda del 12/10) no caben en
+     * una sola tabla sin repetir la ficha en cada fila.
+     *
+     * @param  array<string, array{0: array<int, string>, 1: iterable<int, array<int, mixed>>}>  $hojas
+     */
+    public function xlsxHojas(string $nombre, array $hojas): StreamedResponse
+    {
+        return response()->streamDownload(function () use ($hojas) {
+            $escritor = new EscritorXlsx;
+            $escritor->openToFile('php://output');
+
+            $primera = true;
+
+            foreach ($hojas as $titulo => [$cabeceras, $filas]) {
+                if (! $primera) {
+                    $escritor->addNewSheetAndMakeItCurrent();
+                }
+                $primera = false;
+
+                // Excel no admite más de 31 caracteres en el nombre de una hoja.
+                $escritor->getCurrentSheet()->setName(mb_substr($titulo, 0, 31));
+                $escritor->addRow(Row::fromValuesWithStyle($cabeceras, (new Style)->withFontBold(true)));
+
+                foreach ($filas as $fila) {
+                    $escritor->addRow(Row::fromValues($this->normalizar($fila)));
+                }
+            }
+
+            $escritor->close();
+        }, $this->archivo($nombre, 'xlsx'), [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    /**
      * @param  array<int, string>  $cabeceras
      * @param  iterable<int, array<int, mixed>>  $filas
      */

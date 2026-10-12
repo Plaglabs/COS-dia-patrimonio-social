@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 
 /**
- * La política de privacidad y, desde el 09/10, las preguntas frecuentes.
+ * La política de privacidad. Las preguntas frecuentes estuvieron aquí del
+ * 09/10 al 12/10; ahora tienen su propia pantalla, una fila por pregunta
+ * (`FaqController`).
  *
  * En el árbol del panel es un nodo propio porque es lo que la ONG va a buscar
  * por su nombre, pero por debajo es una página más del CRUD de páginas. Se
@@ -21,12 +23,6 @@ class PaginaLegalController extends Controller
     public function privacidad(ContentController $contenido)
     {
         return $this->abrir($contenido, 'privacidad', 'La política de privacidad');
-    }
-
-    /** Punto 7 del 09/10: la crea su migración; aquí se edita como la otra. */
-    public function preguntasFrecuentes(ContentController $contenido)
-    {
-        return $this->abrir($contenido, 'preguntas-frecuentes', 'La página de preguntas frecuentes');
     }
 
     private function abrir(ContentController $contenido, string $slug, string $nombre)

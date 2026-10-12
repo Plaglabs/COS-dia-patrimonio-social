@@ -371,6 +371,66 @@ class OrganizationController extends Controller
         return back()->with('ok', "«{$organizacion->nombre}» restaurada.");
     }
 
+    /**
+     * Una organización entera a Excel, desde su ficha (tanda del 12/10): todos
+     * sus datos en una hoja y sus cuentas en otra —la principal primero y
+     * después las asociadas, con la fecha en que se sumó cada una—.
+     *
+     * «Se sumó» es `users.organizacion_desde`. Para las cuentas que ya eran
+     * dueñas antes de las varias cuentas (09/10), la migración puso ahí el alta
+     * de la organización, que es cuando la crearon.
+     */
+    public function exportarUna(Organization $organization, Exportador $exportador)
+    {
+        $o = $organization->load(['cuentas' => fn ($q) => $q->withCount('activities')->orderBy('organizacion_desde')->orderBy('id')])
+            ->loadCount(['activities', 'registrations']);
+        $principal = $o->user_id;
+
+        $siNo = fn ($v) => $v ? 'Sí' : 'No';
+
+        $ficha = [
+            ['ID', $o->id],
+            ['Nombre', $o->nombre],
+            ['Tipo', $o->tipo],
+            ['Tipo (si es «Otra»)', $o->tipo_otro],
+            ['Unidad educativa', $o->unidad_educativa],
+            ['Descripción', $o->descripcion],
+            ['Correo de contacto', $o->correo_contacto],
+            ['Sitio web', $o->enlace_web],
+            ['Red social', $o->enlace_red_social],
+            ['Logo', $o->logo_path ? asset($o->logo_path) : ''],
+            ['Número de voluntarios', $o->num_voluntarios],
+            ['Años de participación', $o->anios_participacion],
+            ['Verificada', $siNo($o->verificada)],
+            ['Activa', $siNo($o->activo)],
+            ['Revisar siempre sus actividades a mano', $siNo($o->requiere_revision)],
+            ['En la marquesina del home (posición)', $o->marquesina_orden],
+            ['Cuenta principal', $o->user?->email ?? 'Sin cuenta principal'],
+            ['Cuentas', $o->cuentas->count()],
+            ['Actividades', $o->activities_count],
+            ['Inscripciones en sus actividades', $o->registrations_count],
+            ['Alta', Fecha::iso($o->created_at)],
+            ['Última modificación', Fecha::iso($o->updated_at)],
+        ];
+
+        $cuentas = $o->cuentas
+            ->sortBy(fn ($c) => $c->id === $principal ? 0 : 1, SORT_REGULAR)
+            ->map(fn ($c) => [
+                $c->id === $principal ? 'Principal' : 'Asociada',
+                $c->name,
+                $c->email,
+                Fecha::iso($c->organizacion_desde ?? $c->created_at),
+                $siNo($c->is_active),
+                $c->activities_count,
+                $c->last_login_at ? Fecha::iso($c->last_login_at) : 'Nunca',
+            ])->values()->all();
+
+        return $exportador->xlsxHojas('Organizacion '.$o->nombre, [
+            'Organización' => [['Campo', 'Valor'], $ficha],
+            'Cuentas' => [['Cuenta', 'Nombre', 'Correo', 'Se sumó', 'Activa', 'Actividades', 'Última entrada'], $cuentas],
+        ]);
+    }
+
     public function exportar(Request $request, Exportador $exportador)
     {
         $formato = Filtro::texto($request, 'formato') === 'csv' ? 'csv' : 'xlsx';

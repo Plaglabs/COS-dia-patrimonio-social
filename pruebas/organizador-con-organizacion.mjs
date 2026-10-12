@@ -59,7 +59,7 @@ const texto = () => p.evaluate(() => document.querySelector('main')?.innerText ?
 
 /** Rellena «Nuevo usuario»; `org` = nombre a escribir, `elegir` = si se elige de las sugerencias. */
 const crear = async ({ correo, rol = 'organizer', org = '', elegir = false }) => {
-  await p.goto(`${B}/admin/usuarios?rol=organizer`, { waitUntil: 'networkidle2' });
+  await p.goto(`${B}/admin/usuarios/nuevo?rol=organizer`, { waitUntil: 'networkidle2' });
   await p.type(`${F} [name="name"]`, 'Persona de Prueba');
   await p.type(`${F} [name="email"]`, correo);
   await p.type(`${F} [name="password"]`, 'clave-larga-2026');
@@ -84,7 +84,7 @@ try {
   await Promise.all([p.waitForNavigation({ waitUntil: 'networkidle2' }), p.evaluate(() => document.querySelector('form[method="POST"]').submit())]);
 
   t('Crear un organizador');
-  await p.goto(`${B}/admin/usuarios?rol=organizer`, { waitUntil: 'networkidle2' });
+  await p.goto(`${B}/admin/usuarios/nuevo?rol=organizer`, { waitUntil: 'networkidle2' });
   di('con rol Organizador se ve el campo Organización', await p.$eval(`${F} [data-campo-organizacion]`, (e) => e.getBoundingClientRect().height > 0));
   await p.select(`${F} [name="role"]`, 'admin');
   await esperar(150);
@@ -125,7 +125,7 @@ try {
   t('Una consulta de fondo no se lleva los avisos');
   // La carrera, a propósito: envío rechazado, una consulta del buscador antes
   // de recargar, y la recarga. Antes la página volvía vacía.
-  await p.goto(`${B}/admin/usuarios?rol=organizer`, { waitUntil: 'networkidle2' });
+  await p.goto(`${B}/admin/usuarios/nuevo?rol=organizer`, { waitUntil: 'networkidle2' });
   await p.evaluate(async (correo) => {
     const f = document.querySelector('[data-crear-usuario]');
     const datos = new URLSearchParams(new FormData(f));
@@ -134,7 +134,7 @@ try {
     await fetch(f.action, { method: 'POST', body: datos, redirect: 'manual', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     await fetch('/organizaciones/buscar?q=Fundaci', { headers: { Accept: 'application/json' } });
   }, C('carrera'));
-  await p.goto(`${B}/admin/usuarios?rol=organizer`, { waitUntil: 'networkidle2' });
+  await p.goto(`${B}/admin/usuarios/nuevo?rol=organizer`, { waitUntil: 'networkidle2' });
   di('la página trae el aviso', (await texto()).includes('Un organizador necesita su organización'));
   di('y lo escrito', await p.$eval(`${F} [name="email"]`, (i) => i.value) === C('carrera'));
   await p.reload({ waitUntil: 'networkidle2' });

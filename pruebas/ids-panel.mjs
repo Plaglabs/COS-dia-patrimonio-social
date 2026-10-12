@@ -82,6 +82,7 @@ await revisar('Catálogos → Temas', '/admin/taxonomias?grupo=tema');
 await revisar('Catálogos → Características', '/admin/taxonomias?grupo=caracteristica');
 await revisar('Catálogos → Públicos', '/admin/taxonomias?grupo=publico');
 await revisar('Catálogos → Accesibilidad', '/admin/taxonomias?grupo=acceso');
+await revisar('Páginas → Preguntas frecuentes', '/admin/paginas/preguntas-frecuentes');
 await revisar('Regiones y comunas', '/admin/regiones');
 await revisar('Registro de correos', '/admin/correos');
 await revisar('Plantillas de correo', '/admin/plantillas');

@@ -65,6 +65,20 @@ class TaxonomyController extends Controller
         ]);
     }
 
+    /** Agregar, en su propia pantalla y no a un lado del listado (12/10). */
+    public function create(Request $request)
+    {
+        $grupo = Filtro::texto($request, 'grupo') ?: 'tema';
+        abort_unless(isset(TaxonomyTerm::GRUPOS[$grupo]), 404);
+
+        return view('admin.taxonomies.create', [
+            'grupo' => $grupo,
+            'grupos' => TaxonomyTerm::GRUPOS,
+            // Al final de la lista, como proponía el formulario de antes.
+            'siguiente' => TaxonomyTerm::where('grupo', $grupo)->count() + 1,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $datos = $request->validate([
@@ -77,7 +91,7 @@ class TaxonomyController extends Controller
 
         TaxonomyTerm::create($datos + ['slug' => Str::slug($datos['nombre']), 'activo' => true]);
 
-        return back()->with('ok', 'Término agregado.');
+        return redirect()->route('admin.taxonomies.index', ['grupo' => $datos['grupo']])->with('ok', 'Término agregado.');
     }
 
     public function update(Request $request, TaxonomyTerm $term)

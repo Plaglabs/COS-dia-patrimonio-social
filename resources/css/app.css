@@ -578,6 +578,9 @@ a.textlink:hover { color: var(--naranjo-600); }
     overflow-y: auto;
     font-size: 15px;
     line-height: 1.6;
+    /* Peso normal aunque vaya dentro de un `.lbl` (en negrita): si no, el
+       navegador cree que el texto ya es negrita y el botón la QUITA (12/10). */
+    font-weight: 400;
     color: var(--gris-700);
 }
 
@@ -4147,3 +4150,17 @@ img.org-logo {
 .pagina-texto .faq summary:focus-visible { outline: 2px solid var(--naranjo); outline-offset: 2px; border-radius: 14px; }
 .pagina-texto .faq details > div { padding: 0 20px 6px; }
 .pagina-texto .faq details > div p { margin: 0 0 12px; }
+
+/* Las dos pestañas de las preguntas frecuentes (12/10): enlaces con forma de
+   pastilla, la elegida rellena. */
+.faq-pestanas { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 30px; }
+.faq-pestana {
+    display: inline-block; padding: 9px 22px; border-radius: 999px;
+    border: 1.5px solid var(--naranjo); color: var(--naranjo-600); background: #fff;
+    font-weight: 700; font-size: 15px; line-height: 1.3; text-decoration: none;
+}
+.faq-pestana:hover { background: var(--naranjo-100); }
+.faq-pestana.activa { background: var(--naranjo); border-color: var(--naranjo); color: #fff; }
+.faq-pestana:focus-visible { outline: 2px solid var(--naranjo); outline-offset: 3px; }
+.faq-vacia { border: 1px dashed var(--linea, #eceef0); border-radius: 14px; padding: 22px 22px 10px; background: var(--bg-warm); }
+.faq-vacia p { margin: 0 0 12px; }

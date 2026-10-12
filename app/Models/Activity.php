@@ -289,23 +289,54 @@ class Activity extends Model
     }
 
     /**
-     * Sin las que ya pasaron: la misma regla que `yaPaso()`, en SQL. Su último
-     * día (el de término, o el de inicio si es de un solo día) es hoy o
-     * después, en hora de Chile; las «disponibles de forma permanente» y las
-     * que no tienen fecha no pasan nunca.
+     * Las que tienen fecha y todavía no pasaron: su último día (el de término,
+     * o el de inicio si es de un solo día) es hoy o después, en hora de Chile.
+     * Es la regla de `yaPaso()` en SQL, sin las que no tienen día.
      *
-     * Es el filtro del bloque de actividades del home (puntos 3 y 8 del 08/10),
-     * también para las destacadas a mano, junto con `abiertasAlPublico`: el
-     * panel decide cuál de las que cumplen se destaca, no saltarse el filtro.
+     * Es el filtro del carrusel del home (tanda del 12/10), destacadas a mano
+     * incluidas: el carrusel enseña lo que viene, y una actividad sin día no
+     * «viene» ningún día. Las «disponibles de forma permanente» salen en el
+     * listado (`scopeVigentes`), al final.
      */
-    public function scopeSinPasadas(Builder $q): Builder
+    public function scopeConFechaProxima(Builder $q): Builder
     {
         $hoy = now(\App\Support\Fecha::zona())->toDateString();
 
+        return $q->whereRaw('COALESCE(sin_fecha_definida, 0) = 0')
+            ->whereNotNull('fecha_inicio')
+            ->whereRaw('COALESCE(fecha_termino, fecha_inicio) >= ?', [$hoy]);
+    }
+
+    /**
+     * Lo que el listado de /actividades enseña (tanda del 12/10): las que
+     * tienen fecha y no han pasado, más las «disponibles de forma permanente»,
+     * que se pueden hacer cualquier día y por eso no pasan nunca.
+     *
+     * Quedan fuera las que ya pasaron y las que no tienen fecha sin ser
+     * permanentes: hoy el formulario no deja publicarlas así (la fecha es
+     * obligatoria salvo «permanente»), sólo pueden venir de datos antiguos, y
+     * no hay día en que ponerlas.
+     */
+    public function scopeVigentes(Builder $q): Builder
+    {
         return $q->where(fn ($w) => $w
-            ->where('sin_fecha_definida', true)
-            ->orWhereNull('fecha_inicio')
-            ->orWhereRaw('COALESCE(fecha_termino, fecha_inicio) >= ?', [$hoy]));
+            ->where(fn ($f) => $f->conFechaProxima())
+            ->orWhere('sin_fecha_definida', true));
+    }
+
+    /**
+     * El orden de lo que se lee como agenda —el listado y el carrusel del
+     * home— (tanda del 12/10): por fecha de la actividad, de la más cercana a
+     * la más lejana, igual que se lee el calendario. Dentro del mismo día, por
+     * hora (sin hora primero). Las permanentes, que no tienen día, al final.
+     */
+    public function scopePorFecha(Builder $q): Builder
+    {
+        return $q
+            ->orderByRaw('CASE WHEN COALESCE(sin_fecha_definida, 0) = 1 OR fecha_inicio IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('fecha_inicio')
+            ->orderBy('hora_inicio')
+            ->orderBy('id');
     }
 
     public function scopeFeatured(Builder $q): Builder
@@ -370,26 +401,6 @@ class Activity extends Model
         return $q->orderBy('orden')->orderBy('fecha_inicio');
     }
 
-    /**
-     * El orden del listado de /actividades (tanda del 09/10): las más recién
-     * creadas primero y las que ya pasaron al final, con la misma regla de
-     * «ya pasó» que `scopeSinPasadas()`. El calendario no lo usa: ahí manda
-     * la fecha de la actividad.
-     */
-    public function scopeRecientesPrimero(Builder $q): Builder
-    {
-        $hoy = now(\App\Support\Fecha::zona())->toDateString();
-
-        return $q
-            ->orderByRaw(
-                'CASE WHEN COALESCE(sin_fecha_definida, 0) = 0 AND fecha_inicio IS NOT NULL'
-                .' AND COALESCE(fecha_termino, fecha_inicio) < ? THEN 1 ELSE 0 END',
-                [$hoy]
-            )
-            ->orderByDesc('created_at')
-            ->orderByDesc('id');
-    }
-
     // ── Accessors ────────────────────────────────────────────────
 
     public function getEstadoLabelAttribute(): string
@@ -410,7 +421,13 @@ class Activity extends Model
     /** Formato corto que usan las tarjetas del home, tipo "Sáb 26 jul". */
     public function getFechaCortaAttribute(): string
     {
-        if ($this->sin_fecha_definida || ! $this->fecha_inicio) {
+        // Una permanente no tiene la fecha «por definir»: se puede hacer
+        // cualquier día. Es lo que dice su franja en el calendario (12/10).
+        if ($this->sin_fecha_definida) {
+            return 'Todo el año';
+        }
+
+        if (! $this->fecha_inicio) {
             return 'Por definir';
         }
 

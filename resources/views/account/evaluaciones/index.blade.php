@@ -122,14 +122,20 @@
                                 @endforeach
                             </div>
 
-                            @unless ($e->foto_autorizada)
-                                {{-- Va aquí, pegado a las fotos, y no arriba en la
-                                     pantalla: quien mire ésta tiene que leerlo
-                                     mirando estas fotos y no otras. --}}
-                                <p class="helper" style="margin:10px 0 0;color:var(--rosa);">
+                            {{-- Va aquí, pegado a las fotos, y no arriba en la
+                                 pantalla: quien mire ésta tiene que leerlo
+                                 mirando estas fotos y no otras. Los dos casos
+                                 llevan aviso (12/10): con uno solo, su ausencia
+                                 no dice si se puede usar o si falta el aviso. --}}
+                            @if ($e->foto_autorizada)
+                                <p class="helper" style="margin:10px 0 0;color:#0d6b64;" data-foto-autorizada>
+                                    Con autorización de difusión: quien las subió autorizó su uso público.
+                                </p>
+                            @else
+                                <p class="helper" style="margin:10px 0 0;color:var(--rosa);" data-foto-sin-autorizar>
                                     Sin autorización de difusión: quien las subió no autorizó su uso público.
                                 </p>
-                            @endunless
+                            @endif
                         @endif
                     </article>
                 @endforeach

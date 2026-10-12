@@ -127,7 +127,7 @@ try {
 
   t('1 · El aviso rojo se va cuando el campo queda bien');
 
-  await admin.goto(`${B}/admin/usuarios`, { waitUntil: 'networkidle2' });
+  await admin.goto(`${B}/admin/usuarios/nuevo`, { waitUntil: 'networkidle2' });
   await admin.type('#u-name', 'Persona Corta');
   await admin.type('#u-email', ADMIN);
   await admin.type('#u-password', 'corta');
@@ -230,7 +230,8 @@ try {
   await pub.goto(`${B}/mi-cuenta/login`, { waitUntil: 'networkidle2' });
   di('el pie compacto también la enlaza', !! await pub.$('footer [data-pie-faq]'));
   await admin.goto(`${B}/admin/paginas/preguntas-frecuentes`, { waitUntil: 'networkidle2' });
-  di('el panel la edita como la de privacidad', (await admin.$eval('textarea[name="contenido"]', (c) => c.value)).includes('<details>'));
+  // Desde el 12/10 se edita pregunta a pregunta, en dos pestañas (tanda-12-10.mjs).
+  di('el panel la edita, una fila por pregunta', await admin.evaluate(() => document.querySelectorAll('tbody tr[data-fila]').length) === 32);
 
   t('8 · La ficha pública de la actividad');
 

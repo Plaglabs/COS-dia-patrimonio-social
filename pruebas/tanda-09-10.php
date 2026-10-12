@@ -155,26 +155,42 @@ try {
     $di('sin principal activa: sólo a la autora', $c && blank($c->cc), (string) $c?->cc);
     $principal->update(['is_active' => true]);
 
-    echo PHP_EOL.'=== 3 · El orden de /actividades ==='.PHP_EOL.PHP_EOL;
+    echo PHP_EOL.'=== 3 · El orden de /actividades (cambió el 12/10: por fecha de la actividad) ==='.PHP_EOL.PHP_EOL;
 
     $hoy = now(\App\Support\Fecha::zona())->startOfDay();
-    $vieja = $nueva($principal, ['estado' => 'publicada', 'published_at' => now(), 'fecha_inicio' => $hoy->copy()->addDays(30), 'sin_fecha_definida' => false, 'cerrada' => false]);
-    $vieja->forceFill(['created_at' => now()->subDays(40)])->save();
-    $reciente = $nueva($principal, ['estado' => 'publicada', 'published_at' => now(), 'fecha_inicio' => $hoy->copy()->addDays(60), 'sin_fecha_definida' => false, 'cerrada' => false]);
-    $reciente->forceFill(['created_at' => now()->subDay()])->save();
-    $pasada = $nueva($principal, ['estado' => 'publicada', 'published_at' => now(), 'fecha_inicio' => $hoy->copy()->subDays(10), 'fecha_termino' => null, 'sin_fecha_definida' => false, 'cerrada' => false]);
+    $pub = ['estado' => 'publicada', 'published_at' => now(), 'sin_fecha_definida' => false, 'cerrada' => false, 'fecha_termino' => null];
+    $lejana = $nueva($principal, ['fecha_inicio' => $hoy->copy()->addDays(60)] + $pub);
+    $lejana->forceFill(['created_at' => now()->subDay()])->save();
+    $cercana = $nueva($principal, ['fecha_inicio' => $hoy->copy()->addDays(30)] + $pub);
+    $cercana->forceFill(['created_at' => now()->subDays(40)])->save();
+    $deHoy = $nueva($principal, ['fecha_inicio' => $hoy->copy()] + $pub);
+    $enCurso = $nueva($principal, ['fecha_inicio' => $hoy->copy()->subDay(), 'fecha_termino' => $hoy->copy()->addDay()] + $pub);
+    $pasada = $nueva($principal, ['fecha_inicio' => $hoy->copy()->subDays(10)] + $pub);
     $pasada->forceFill(['created_at' => now()])->save();
-    $permanente = $nueva($principal, ['estado' => 'publicada', 'published_at' => now(), 'fecha_inicio' => null, 'sin_fecha_definida' => true, 'cerrada' => false]);
-    $permanente->forceFill(['created_at' => now()->subDays(2)])->save();
+    $permanente = $nueva($principal, ['fecha_inicio' => null, 'sin_fecha_definida' => true] + $pub);
+    $porDefinir = $nueva($principal, ['fecha_inicio' => null] + $pub);
 
-    $orden = Activity::published()->abiertasAlPublico()->recientesPrimero()->pluck('id')->all();
+    $orden = Activity::published()->abiertasAlPublico()->vigentes()->porFecha()->pluck('id')->all();
     $pos = fn (Activity $a) => array_search($a->id, $orden, true);
-    $di('la creada ayer va antes que la de hace 40 días', $pos($reciente) < $pos($vieja));
-    $di('la permanente cuenta como vigente (antes que la de hace 40 días)', $pos($permanente) < $pos($vieja));
-    $di('la que ya pasó va después que todas las vigentes, aunque sea la más nueva', $pos($pasada) > $pos($vieja));
-    $ultimaVigente = collect($orden)->search(fn ($id) => Activity::find($id)->yaPaso());
-    $di('ninguna vigente después de una pasada', $ultimaVigente === false
-        || collect(array_slice($orden, $ultimaVigente))->every(fn ($id) => Activity::find($id)->yaPaso()));
+    $di('la de dentro de 30 días va antes que la de 60, aunque se creara antes', $pos($cercana) < $pos($lejana));
+    $di('la de hoy está y va antes que la de 30 días', $pos($deHoy) !== false && $pos($deHoy) < $pos($cercana));
+    $di('una de varios días que empezó ayer y termina mañana sigue en el listado', $pos($enCurso) !== false && $pos($enCurso) < $pos($deHoy));
+    $di('la que ya pasó no sale', $pos($pasada) === false);
+    $di('la permanente sale, después de todas las que tienen fecha', $pos($permanente) !== false && $pos($permanente) > $pos($lejana));
+    $di('la que no tiene fecha sin ser permanente no sale', $pos($porDefinir) === false);
+    $fechas = collect($orden)->map(fn ($id) => Activity::find($id))->reject(fn ($a) => $a->sin_fecha_definida)
+        ->map(fn ($a) => $a->fecha_inicio->toDateString())->values()->all();
+    $ordenadas = $fechas;
+    sort($ordenadas);
+    $di('todas las fechadas en orden ascendente', $fechas === $ordenadas);
+    $di('ninguna del listado ya pasó', collect($orden)->every(fn ($id) => ! Activity::find($id)->yaPaso()));
+
+    $home = Activity::published()->abiertasAlPublico()->conFechaProxima()->pluck('id')->all();
+    $di('el home no lleva la permanente', ! in_array($permanente->id, $home, true));
+    $di('…ni la que no tiene fecha, ni la pasada', ! in_array($porDefinir->id, $home, true) && ! in_array($pasada->id, $home, true));
+    $di('…y sí la de hoy y la que está en curso', in_array($deHoy->id, $home, true) && in_array($enCurso->id, $home, true));
+    $di('la tarjeta de una permanente dice «Todo el año», no «Por definir»', $permanente->fresh()->fecha_corta === 'Todo el año'
+        && $porDefinir->fresh()->fecha_corta === 'Por definir', $permanente->fresh()->fecha_corta);
 
     echo PHP_EOL.'=== 4 · El correo de contacto ==='.PHP_EOL.PHP_EOL;
 

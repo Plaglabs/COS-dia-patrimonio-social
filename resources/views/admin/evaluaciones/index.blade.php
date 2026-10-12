@@ -148,6 +148,13 @@
                             <span class="helper" style="margin-left:4px;">{{ $e->fotos->count() }}</span>
                         @endif
                     </a>
+                    {{-- Dicho en palabras, en los dos casos (12/10): la marca
+                         ✓ sola no se entendía, y su ausencia tampoco. --}}
+                    @if ($e->foto_autorizada)
+                        <span class="helper" style="display:block;margin-top:4px;color:#0d6b64;" data-foto-autorizada>Con autorización de difusión</span>
+                    @else
+                        <span class="helper" style="display:block;margin-top:4px;color:var(--rosa);" data-foto-sin-autorizar>Sin autorización de difusión</span>
+                    @endif
                 @endif
 
                 <x-panel.confirmar

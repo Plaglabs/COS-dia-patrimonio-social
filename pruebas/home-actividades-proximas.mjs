@@ -99,10 +99,14 @@ try {
   di('**ninguna de las que ya pasaron**', ! c.pasada && ! c['pasada-dest']);
   di('ni las cerradas', ! c['cerrada-dest']);
 
-  t('El listado de /actividades no cambia');
+  // Hasta el 12/10 el listado seguía enseñando las pasadas; desde entonces se
+  // lee como agenda y no las enseña. El calendario sí, en su día.
+  t('El listado de /actividades ya no enseña las pasadas (12/10); el calendario sí');
 
   const listado = await (await fetch(`${B}/actividades?q=${encodeURIComponent(`Home pasada ${SELLO}`)}`)).text();
-  di('una pasada sigue en el listado público', listado.includes(`/${slug("pasada")}"`));
+  di('una pasada no sale en el listado público', ! listado.includes(`/${slug("pasada")}"`));
+  const calendario = await (await fetch(`${B}/actividades?vista=calendario&q=${encodeURIComponent(`Home pasada ${SELLO}`)}`)).text();
+  di('…pero sigue en el calendario', calendario.includes(`/${slug("pasada")}"`));
 
   t('Punto 9 · «¿Qué es el Patrimonio Social?»');
 

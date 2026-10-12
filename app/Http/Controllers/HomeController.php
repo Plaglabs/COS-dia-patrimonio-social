@@ -86,10 +86,15 @@ class HomeController extends Controller
          * cerradas, tampoco destacadas a mano (puntos 3 y 8 del 08/10). El
          * panel decide cuál de las que cumplen se destaca, no saltarse el
          * filtro: una actividad vencida o cerrada en portada no invita a
-         * nadie. El listado y el calendario no cambian.
+         * nadie.
+         *
+         * Desde el 12/10, además, sólo las que tienen día, y por fecha de la
+         * actividad como el listado: el carrusel enseña lo que viene. Las
+         * «disponibles de forma permanente» salían con «Por definir» delante
+         * de todo; siguen en el listado, al final.
          */
-        $base = fn () => Activity::published()->sinPasadas()->abiertasAlPublico()
-            ->with(['commune', 'region', 'terms'])->ordered()->take($cuantas);
+        $base = fn () => Activity::published()->conFechaProxima()->abiertasAlPublico()
+            ->with(['commune', 'region', 'terms'])->porFecha()->take($cuantas);
 
         if ($seccion->texto('seleccion', $borrador) === 'proximas') {
             return $base()->get();

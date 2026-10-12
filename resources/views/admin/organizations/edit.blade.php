@@ -12,6 +12,11 @@
     la principal no mueve actividades de una persona a otra.
 --}}
 
+{{-- Todos sus datos y sus cuentas, con la fecha en que se sumó cada una (12/10). --}}
+@section('actions')
+    <a class="btn btn-outline btn-sm" href="{{ route('admin.organizations.exportar-una', $organizacion) }}" data-descarga data-exportar-organizacion>Exportar a Excel</a>
+@endsection
+
 @section('content')
 <a href="{{ route('admin.organizations.index') }}" class="textlink" style="font-size:14px;">← Volver a organizaciones</a>
 

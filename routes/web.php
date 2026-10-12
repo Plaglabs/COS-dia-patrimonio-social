@@ -354,6 +354,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/organizaciones/crear', [Admin\OrganizationController::class, 'create'])->name('organizations.create');
         Route::post('/organizaciones', [Admin\OrganizationController::class, 'store'])->name('organizations.store');
         Route::get('/organizaciones/{organization}/editar', [Admin\OrganizationController::class, 'edit'])->name('organizations.edit');
+        Route::get('/organizaciones/{organization}/exportar', [Admin\OrganizationController::class, 'exportarUna'])->name('organizations.exportar-una');
         Route::put('/organizaciones/{organization}', [Admin\OrganizationController::class, 'update'])->name('organizations.update');
         Route::post('/organizaciones/{organization}/estado', [Admin\OrganizationController::class, 'alternar'])->name('organizations.alternar');
         // Varias cuentas por organización: elegir la principal y sacar una cuenta.
@@ -390,6 +391,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/inscripciones/exportar/descargar', [Admin\RegistrationController::class, 'descargar'])->name('registrations.descargar');
 
         Route::get('/usuarios', [Admin\UserController::class, 'index'])->name('users.index');
+        Route::get('/usuarios/nuevo', [Admin\UserController::class, 'create'])->name('users.create');
         Route::post('/usuarios', [Admin\UserController::class, 'store'])->name('users.store');
         Route::get('/usuarios/{user}/editar', [Admin\UserController::class, 'edit'])->name('users.edit');
         Route::put('/usuarios/{user}', [Admin\UserController::class, 'update'])->name('users.update');
@@ -434,7 +436,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/paginas/home/{seccion}/borrador', [Admin\HomeSectionController::class, 'descartarBorrador'])->name('home.borrador.descartar');
         Route::post('/paginas/home/{seccion}/versiones/{version}/restaurar', [Admin\HomeSectionController::class, 'restaurar'])->name('home.restaurar');
         Route::get('/paginas/privacidad', [Admin\PaginaLegalController::class, 'privacidad'])->name('paginas.privacidad');
-        Route::get('/paginas/preguntas-frecuentes', [Admin\PaginaLegalController::class, 'preguntasFrecuentes'])->name('paginas.preguntas-frecuentes');
+        // Preguntas frecuentes: una fila por pregunta, en dos pestañas (12/10).
+        Route::get('/paginas/preguntas-frecuentes', [Admin\FaqController::class, 'index'])->name('paginas.preguntas-frecuentes');
+        Route::get('/paginas/preguntas-frecuentes/nueva', [Admin\FaqController::class, 'create'])->name('faq.create');
+        Route::post('/paginas/preguntas-frecuentes', [Admin\FaqController::class, 'store'])->name('faq.store');
+        Route::post('/paginas/preguntas-frecuentes/orden', [Admin\FaqController::class, 'reordenar'])->name('faq.orden');
+        Route::get('/paginas/preguntas-frecuentes/{pregunta}/editar', [Admin\FaqController::class, 'edit'])->name('faq.edit');
+        Route::put('/paginas/preguntas-frecuentes/{pregunta}', [Admin\FaqController::class, 'update'])->name('faq.update');
+        Route::post('/paginas/preguntas-frecuentes/{pregunta}/mover', [Admin\FaqController::class, 'mover'])->name('faq.mover');
+        Route::post('/paginas/preguntas-frecuentes/{pregunta}/estado', [Admin\FaqController::class, 'alternar'])->name('faq.alternar');
+        Route::delete('/paginas/preguntas-frecuentes/{pregunta}', [Admin\FaqController::class, 'destroy'])->name('faq.destroy');
 
         // Qué organizaciones salen en la marquesina del home, y el interruptor
         // que la llena sola. Ver App\Support\Marquesina.
@@ -450,6 +461,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Taxonomías
         Route::get('/taxonomias', [Admin\TaxonomyController::class, 'index'])->name('taxonomies.index');
+        Route::get('/taxonomias/nuevo', [Admin\TaxonomyController::class, 'create'])->name('taxonomies.create');
         Route::post('/taxonomias', [Admin\TaxonomyController::class, 'store'])->name('taxonomies.store');
         Route::put('/taxonomias/{term}', [Admin\TaxonomyController::class, 'update'])->name('taxonomies.update');
         Route::delete('/taxonomias/{term}', [Admin\TaxonomyController::class, 'destroy'])->name('taxonomies.destroy');

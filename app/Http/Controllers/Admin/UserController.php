@@ -67,6 +67,12 @@ class UserController extends Controller
         ]);
     }
 
+    /** Crear, en su propia pantalla y no a un lado del listado (12/10). */
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
     public function store(Request $request)
     {
         // Las reglas de la cuenta son las mismas que al crearla junto a su
@@ -89,7 +95,9 @@ class UserController extends Controller
             app(CorreoTransaccional::class)->cuentaSumada($usuario->fresh('organization'));
         }
 
-        return back()->with('ok', match (true) {
+        // Al listado de su rol, donde ya sale: el formulario vive en su propia
+        // pantalla y volver a él dejaría a la persona delante de otro vacío.
+        return redirect()->route('admin.users.index', ['rol' => $usuario->role])->with('ok', match (true) {
             $sumada => "Usuario creado y sumado a «{$organizacion['nombre']}». Avisamos a su cuenta principal.",
             (bool) $organizacion => "Usuario creado, con «{$organizacion['nombre']}» como su organización.",
             default => 'Usuario creado.',

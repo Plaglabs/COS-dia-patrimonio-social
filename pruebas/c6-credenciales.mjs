@@ -97,7 +97,7 @@ try {
   if (yaEsta) {
     di('Ya existía, no se crea otra vez', true, yaEsta.texto);
   } else {
-    await p.goto(`${B}/admin/usuarios`, { waitUntil: 'networkidle2' });
+    await p.goto(`${B}/admin/usuarios/nuevo`, { waitUntil: 'networkidle2' });
     await p.type('#u-name', NUEVO_NOMBRE);
     await p.type('#u-email', NUEVO);
     await p.type('#u-password', CLAVE_NUEVA);
