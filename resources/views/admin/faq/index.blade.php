@@ -33,7 +33,7 @@
     <div class="card" style="padding:26px;" data-faq-panel-vacia>
         <p style="margin:0 0 8px;font-weight:700;">Esta pestaña todavía no tiene preguntas.</p>
         <p class="helper" style="margin:0;">
-            Mientras esté vacía, la página la muestra con un aviso de que pronto habrá contenido, no con un hueco.
+            Mientras esté vacía, la página no la muestra: sólo salen las pestañas con alguna pregunta visible.
             Agrega la primera con «Agregar pregunta», o pasa aquí alguna de la otra pestaña.
         </p>
     </div>

@@ -9,7 +9,7 @@
 //   3. Exportar una organización a Excel desde su ficha, con sus cuentas.
 //   4. Evaluaciones: aviso verde cuando la foto SÍ tiene autorización.
 //   5. Preguntas frecuentes en dos pestañas, editables y movibles desde el
-//      panel.
+//      panel; desde el 13/10, Organizaciones con las 35 del documento.
 //
 // Monta su escenario con un sello irrepetible y lo deshace al final. Toca las
 // preguntas frecuentes (mueve una y la devuelve, crea una y la borra).
@@ -311,16 +311,34 @@ try {
 
   await pub.click('[data-faq-pestana="organizaciones"]');
   await pub.waitForNetworkIdle();
-  const vacia = await pub.evaluate(() => ({
+  const pOrg = await pub.evaluate(() => ({
     url: location.search,
     activa: document.querySelector('[data-faq-pestana].activa')?.textContent.trim(),
-    aviso: document.querySelector('[data-faq-vacia]')?.innerText ?? '',
-    preguntas: document.querySelectorAll('.faq details').length,
-    alto: Math.round(document.querySelector('[data-faq-vacia]')?.getBoundingClientRect().height ?? 0),
+    preguntas: [...document.querySelectorAll('.faq summary')].map((s) => s.textContent.trim()),
+    secciones: [...document.querySelectorAll('.faq h2')].map((h) => h.textContent.trim()),
+    enlaces: [...document.querySelectorAll('.faq a')].map((a) => [a.href, a.target]),
+    texto: document.querySelector('.faq')?.textContent ?? '',
+    relleno: document.body.innerText.includes('Pronto publicaremos'),
   }));
-  di('Organizaciones: la pestaña se marca y viaja en la URL', vacia.activa === 'Organizaciones' && vacia.url === '?pestana=organizaciones');
-  di('vacía, con su aviso y sin preguntas', vacia.preguntas === 0 && vacia.aviso.includes('Pronto publicaremos') && vacia.alto > 40, vacia.aviso.replace(/\s+/g, ' '));
-  di('…y un enlace de vuelta a Personas', await pub.evaluate(() => [...document.querySelectorAll('[data-faq-vacia] a')].some((a) => a.textContent.includes('personas'))));
+  di('Organizaciones: la pestaña se marca y viaja en la URL', pOrg.activa === 'Organizaciones' && pOrg.url === '?pestana=organizaciones');
+  di('Organizaciones: las 35 del documento (13/10)', pOrg.preguntas.length === 35, String(pOrg.preguntas.length));
+  di('…en sus 6 secciones, en orden', JSON.stringify(pOrg.secciones) === JSON.stringify(['1. Información general', '2. Inscripción y publicación de actividades',
+    '3. Participación del público y convocatorias', '4. Administración de actividades y participantes',
+    '5. Evaluaciones, fotografías y cierre de la actividad', '6. Difusión y continuidad']), pOrg.secciones.join(' / '));
+  di('…la primera y la última, las del documento', pOrg.preguntas[0] === '¿Por qué mi organización o empresa debería sumarse al Día del Patrimonio Social?'
+    && pOrg.preguntas[34] === '¿Puedo seguir realizando y publicando actividades durante el año?');
+  di('ya no dice «Pronto publicaremos…»', ! pOrg.relleno);
+  di('los dos enlaces al kit de difusión, en otra pestaña', pOrg.enlaces.filter(([h, tg]) => h.includes('drive.google.com') && tg === '_blank').length === 2, String(pOrg.enlaces.length));
+  di('el párrafo partido del documento, unido', pOrg.texto.includes('kit de difusión para la difusión posterior. ¡Mostremos'));
+  const deP = json(`echo json_encode(App\\Models\\FaqPregunta::de('personas')->pluck('pregunta'));`);
+  di('ninguna repite pregunta con Personas', pOrg.preguntas.every((q) => ! deP.includes(q)));
+
+  // Una pestaña sin preguntas visibles no se enseña (ni barra, ni relleno).
+  tinker(`App\\Models\\FaqPregunta::de('organizaciones')->update(['activo' => false]); echo 'ok';`);
+  await pub.goto(`${B}/preguntas-frecuentes?pestana=organizaciones`, { waitUntil: 'networkidle2' });
+  const sola = await pub.evaluate(() => ({ barra: !! document.querySelector('.faq-pestanas'), preguntas: document.querySelectorAll('.faq details').length }));
+  di('con Organizaciones oculta: sin barra, y pedirla lleva a Personas', ! sola.barra && sola.preguntas === 32, JSON.stringify(sola));
+  tinker(`App\\Models\\FaqPregunta::de('organizaciones')->update(['activo' => true]); echo 'ok';`);
   await pub.setViewport({ width: 390, height: 844 });
   for (const q of ['', '?pestana=organizaciones']) {
     await pub.goto(`${B}/preguntas-frecuentes${q}`, { waitUntil: 'networkidle2' });
@@ -336,10 +354,10 @@ try {
     marcado: [...document.querySelectorAll('.nav-hoja')].some((a) => a.textContent.trim() === 'Preguntas frecuentes' && (a.classList.contains('activo') || a.getAttribute('aria-current'))),
   }));
   di('Personas: 32 filas', panel.filas === 32, String(panel.filas));
-  di('las dos pestañas con su cuenta', panel.pestanas.join(' | ') === 'Personas · 32 | Organizaciones · 0', panel.pestanas.join(' | '));
+  di('las dos pestañas con su cuenta', panel.pestanas.join(' | ') === 'Personas · 32 | Organizaciones · 35', panel.pestanas.join(' | '));
   di('el menú marca «Preguntas frecuentes»', panel.marcado);
   await admin.goto(`${B}/admin/paginas/preguntas-frecuentes?pestana=organizaciones`, { waitUntil: 'networkidle2' });
-  di('Organizaciones vacía lo explica', !! await admin.$('[data-faq-panel-vacia]'));
+  di('Organizaciones: 35 filas', await admin.evaluate(() => document.querySelectorAll('tbody tr[data-fila]').length) === 35);
 
   // Mover la primera a Organizaciones, mirar la página, y devolverla.
   const primera = json(`echo json_encode(App\\Models\\FaqPregunta::de('personas')->ordenadas()->first()->only(['id', 'pregunta', 'orden']));`);
@@ -349,7 +367,8 @@ try {
   di('«Pasar a Organizaciones» la mueve', json(`echo json_encode(App\\Models\\FaqPregunta::find(${primera.id})->pestana);`) === 'organizaciones');
   await pub.goto(`${B}/preguntas-frecuentes?pestana=organizaciones`, { waitUntil: 'networkidle2' });
   const enOrg = await pub.evaluate(() => [...document.querySelectorAll('.faq summary')].map((s) => s.textContent.trim()));
-  di('la página la enseña en Organizaciones', enOrg.length === 1 && enOrg[0] === primera.pregunta, enOrg.join(' | '));
+  // Conserva su sección, así que sale agrupada con ella y no al final de todo.
+  di('la página la enseña en Organizaciones, con su sección', enOrg.length === 36 && enOrg.includes(primera.pregunta), String(enOrg.length));
   await pub.goto(`${B}/preguntas-frecuentes`, { waitUntil: 'networkidle2' });
   di('…y Personas se queda con 31', await pub.evaluate(() => document.querySelectorAll('.faq details').length) === 31);
   // De vuelta, desde su formulario: cambiar la pestaña.
@@ -374,7 +393,7 @@ try {
   await enviar(admin, 'form[data-form-pregunta]');
   di('se agrega y vuelve a su pestaña', admin.url().includes('pestana=organizaciones'));
   await pub.goto(`${B}/preguntas-frecuentes?pestana=organizaciones`, { waitUntil: 'networkidle2' });
-  const nueva = await pub.evaluate(() => ({ h2: document.querySelector('.faq h2')?.textContent.trim(), html: document.querySelector('.faq details > div')?.innerHTML ?? '' }));
+  const nueva = await pub.evaluate(() => ({ h2: [...document.querySelectorAll('.faq h2')].pop()?.textContent.trim(), html: [...document.querySelectorAll('.faq details > div')].pop()?.innerHTML ?? '' }));
   di('sale en la página con su sección', nueva.h2 === 'Para organizaciones');
   di('…y la negrita del editor', nueva.html.includes('<strong>negrita</strong>'), nueva.html.slice(0, 80));
   await pub.goto(`${B}/preguntas-frecuentes?pestana=organizaciones`, { waitUntil: 'networkidle2' });

@@ -575,8 +575,12 @@ descripción, visible—, pero su cuerpo lo pinta `PageController` desde esa
 tabla, con la pestaña en la URL (`?pestana=organizaciones`). Una sección existe
 mientras alguna pregunta la nombre, y sale en el orden de su primera pregunta.
 
+Sólo se enseñan las pestañas con alguna pregunta visible; con una sola, sin
+barra de pestañas. Pedir una vacía lleva a la primera que tenga.
+
 El `contenido` de la página se quedó como estaba al pasar a filas y sólo se
-pinta si la tabla está vacía. Editarlo no cambia nada mientras haya preguntas.
+pinta si no hay ninguna pregunta visible. Editarlo no cambia nada mientras las
+haya.
 
 ---
 
