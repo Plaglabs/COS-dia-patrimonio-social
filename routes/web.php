@@ -11,6 +11,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PublishController;
 use App\Http\Controllers\QrController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\VoluntariadoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/actividades', [ActivityController::class, 'index'])->name('activities.index');
+
+// Los voluntariados de Voluntariados Chile (13/10): se leen de nuestra tabla,
+// que sincroniza un comando cada hora. Ver VoluntariadoController.
+Route::get('/voluntariados', [VoluntariadoController::class, 'index'])->name('voluntariados.index');
+Route::get('/voluntariados/{voluntariado}', [VoluntariadoController::class, 'show'])->name('voluntariados.show');
+
 /*
  * La ficha de actividad: `/activity/{id}/{slug}`.
  *

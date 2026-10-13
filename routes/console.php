@@ -53,5 +53,14 @@ Schedule::command('dps:invitar-evaluacion')
     ->dailyAt('10:00')
     ->withoutOverlapping();
 
+/*
+ * Los voluntariados de Voluntariados Chile (13/10): la lista completa, cada
+ * hora. A los 17 y no en punto, para no coincidir con los otros dos; y si una
+ * pasada falla porque MySQL no estaba, la siguiente hora lo repone.
+ */
+Schedule::command('dps:sincronizar-voluntariados')
+    ->hourlyAt(17)
+    ->withoutOverlapping(30);
+
 /* Los trabajos fallidos se acumulan; un mes de historial es suficiente. */
 Schedule::command('queue:prune-failed --hours=720')->weekly();

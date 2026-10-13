@@ -205,6 +205,7 @@ Es **una sola** entrada de cron para todo lo programado, que está declarado en
 |---|---|
 | cada minuto | `queue:work --stop-when-empty --max-time=50` — vacía la cola de correos y termina, para no dejar un proceso permanente en un hosting compartido |
 | a las 09:00 | `dps:recordatorios` — el aviso a las personas inscritas los días previos |
+| cada hora, a los :17 | `dps:sincronizar-voluntariados` — trae la lista de Voluntariados Chile (ver el apartado 7) |
 | cada semana | `queue:prune-failed --hours=720` — tira los trabajos fallidos de más de un mes |
 
 ---
@@ -271,7 +272,17 @@ Con `--actividad` enseña además la dirección que codifica esa actividad, si s
 encuesta está abierta y cuándo cierra, y escribe su QR en `storage/app` para
 poder mirarlo.
 
-Los cinco comandos aceptan `--help`. `dps:instalar` además tiene `--seco`, que
+```bash
+php artisan dps:sincronizar-voluntariados
+```
+
+Trae de la API de Voluntariados Chile la lista completa de oportunidades y deja
+`/voluntariados` al día. **No hace falta llamarlo a mano**: lo dispara el
+planificador cada hora. Dice cómo acabó (`ok`, `frenada` o `fallida`) y qué
+movió; cada pasada queda además en la tabla `voluntariado_sincronizaciones`.
+Necesita `VCH_API_KEY` en el `.env`.
+
+Los comandos aceptan `--help`. `dps:instalar` además tiene `--seco`, que
 dice qué falta sin escribir nada.
 
 ---
@@ -587,6 +598,35 @@ barra de pestañas. Pedir una vacía lleva a la primera que tenga.
 El `contenido` de la página se quedó como estaba al pasar a filas y sólo se
 pinta si no hay ninguna pregunta visible. Editarlo no cambia nada mientras las
 haya.
+
+### Los voluntariados vienen de Voluntariados Chile y no se mezclan
+
+`/voluntariados` enseña las oportunidades que publica la API de Voluntariados
+Chile, con la misma tarjeta (`<x-tarjeta-listado>`, que comparte con las
+actividades) y una ficha de la misma estructura. Son de ellos, de sólo lectura,
+y la postulación se hace en su sitio: aquí no hay inscripción, ni QR, ni
+evaluación. Por eso viven en su propia tabla, `voluntariados`, y no en
+`activities`.
+
+- **Las visitas nunca llaman a la API.** La tabla la rellena
+  `dps:sincronizar-voluntariados` cada hora. Nada de caché: el despliegue la
+  vacía cada cinco minutos.
+- **Siempre la lista completa**, sin `updated_since`: lo que desaparece no
+  cambia, y una consulta incremental no se enteraría nunca de una baja.
+- **Dar de baja es delicado y lleva freno.** Sólo tras una sincronización
+  completa y sana —todas las páginas con 200 y tantos ids distintos como dice
+  `pagination.total`—, y nunca si la lista llega vacía o con menos de la mitad
+  de las activas. Dar de baja apaga `activo`; no borra. Las reglas, en
+  `App\Services\SincronizadorVoluntariados`.
+- **Sus catálogos no se traducen a los nuestros**, salvo lo justo para filtrar:
+  el formato y las regiones, en `App\Support\VoluntariadosChile\Equivalencias`,
+  con la lista escrita a mano. Lo que no se reconoce se guarda y se pinta tal
+  cual, y sólo se queda fuera del filtro. Su categoría sale en la tarjeta como
+  etiqueta informativa, y no hay filtro de tema.
+- **No se publica el contacto** (nombre y correo de una persona) que trae la
+  API. Se guarda, con todo lo demás, en `crudo`: la respuesta original entera.
+- La clave va en el `.env` de cada servidor como `VCH_API_KEY`, nunca en el
+  repositorio.
 
 ---
 

@@ -30,12 +30,16 @@ return [
 
     /*
      * La API de Voluntariados Chile (oportunidades del Día del Patrimonio
-     * Social). Todavía no hay integración: sólo la pantalla de prueba del
-     * panel. La API Key NO va aquí: se pega en la pantalla y no se guarda en
-     * ningún sitio.
+     * Social). La sincronización de /voluntariados lee la clave del .env
+     * (`VCH_API_KEY`). La pantalla de prueba del panel sigue pidiéndola en
+     * pantalla y no la guarda en ningún sitio.
      */
     'voluntariados_chile' => [
         'url' => env('VCH_API_URL', 'https://wepgoxkyujickiwvldrs.supabase.co/functions/v1/patrimonio-social-opportunities'),
+        // La que usa la sincronización de la sección de voluntariados. Sólo en
+        // el .env de cada servidor, nunca en el repositorio. El probador del
+        // panel no la usa: pide la suya en pantalla.
+        'key' => env('VCH_API_KEY'),
     ],
 
     'slack' => [

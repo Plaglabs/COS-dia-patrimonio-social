@@ -17,13 +17,18 @@
     Facebook no deja proponer texto: su `sharer` sólo recibe la URL y pinta la
     vista previa de la ficha. El mensaje llega por WhatsApp.
 --}}
+{{--
+    Desde el 13/10 lo usa también la ficha de un voluntariado, que le pasa su
+    `$enlace`, su `$texto` y su `$rotulo`. Sin ellos, los de la actividad.
+--}}
 @php
-    $enlace = route('activities.show', $activity);
-    $texto = \App\Support\MensajeCompartir::para($activity);
+    $enlace ??= route('activities.show', $activity);
+    $texto ??= \App\Support\MensajeCompartir::para($activity);
+    $rotulo ??= 'Comparte esta actividad';
 @endphp
 
 <div class="compartir" x-data="compartir(@js($enlace))">
-    <span class="seclabel">Comparte esta actividad</span>
+    <span class="seclabel">{{ $rotulo }}</span>
 
     <div class="compartir-botones">
         <a class="compartir-btn" target="_blank" rel="noopener"

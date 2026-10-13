@@ -10,11 +10,11 @@
     panel, al abrirlo el navegador tiene que rehacer el desenfoque de media
     pantalla: en un teléfono eso es el parpadeo en blanco y el retardo al tocar.
 
-    «Voluntariado» lleva a las oportunidades de Voluntariados Chile hasta que
-    esté la integración con su API (Etapa 3). Es otro sitio, así que se abre
-    en otra pestaña, como el botón del home (C5).
+    «Voluntariado» lleva a /voluntariados, nuestra sección con las
+    oportunidades de Voluntariados Chile (13/10), en la misma pestaña. Su sitio
+    queda dentro: en el botón de postular y al final del listado.
 --}}
-@php($voluntariado = 'https://voluntariadoschile.cl/oportunidades')
+@php($voluntariado = route('voluntariados.index'))
 {{--
     Punto 7 del 09/10: una barra delgada sobre el menú, con el estilo de la
     línea de «Política de privacidad» del pie. Va fuera del <header> para que
@@ -47,7 +47,7 @@
 
             <div class="nav-links" style="display:flex;align-items:center;gap:24px;margin:0 auto;flex:0 1 auto;min-width:0;">
                 <a class="navlink" href="{{ route('activities.index') }}">Actividades</a>
-                <a class="navlink" href="{{ $voluntariado }}" target="_blank" rel="noopener">Voluntariado</a>
+                <a class="navlink" href="{{ $voluntariado }}">Voluntariado</a>
                 <a class="navlink" href="{{ route('home') }}#que-es">¿Qué es el Patrimonio Social?</a>
                 <a class="navlink" href="{{ route('home') }}#ediciones">Ediciones</a>
                 <a class="navlink" href="{{ route('posts.index') }}">Noticias</a>
@@ -101,7 +101,7 @@
 
         @foreach ([
             ['Actividades', route('activities.index'), false],
-            ['Voluntariado', $voluntariado, true],
+            ['Voluntariado', $voluntariado, false],
             ['¿Qué es el Patrimonio Social?', route('home') . '#que-es', false],
             ['Ediciones', route('home') . '#ediciones', false],
             ['Noticias', route('posts.index'), false],
