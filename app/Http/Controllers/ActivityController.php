@@ -30,10 +30,12 @@ class ActivityController extends Controller
     {
         $vista = Filtro::texto($request, 'vista') === 'calendario' ? 'calendario' : 'lista';
 
-        // Sin las cerradas (punto 6 del 05/10): de aquí salen el listado y el
-        // calendario, así que quedan fuera de los dos con una sola línea.
+        // Las cerradas SÍ salen aquí, en el listado y en el calendario, como
+        // cualquier otra (13/10; del 05/10 al 13/10 se escondían). Su ficha
+        // ya dice que es cerrada y no deja inscribirse. Donde se invita a
+        // participar —el carrusel del home, «otras actividades cerca»— siguen
+        // fuera: ver `Activity::abiertasAlPublico()`.
         $filtradas = Activity::published()
-            ->abiertasAlPublico()
             ->byRegion($request->integer('region') ?: null)
             ->byCommune($request->integer('comuna') ?: null)
             ->byFormato(Filtro::texto($request, 'formato') ?: null)

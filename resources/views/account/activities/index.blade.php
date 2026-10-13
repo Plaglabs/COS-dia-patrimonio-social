@@ -107,10 +107,11 @@
                         <div style="font-size:14.5px;color:var(--gris);margin-bottom:10px;">{{ $a->fecha_lista }} · {{ $a->commune?->nombre ?? 'Por definir' }}</div>
 
                         <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
-                            {{-- Punto 6 del 05/10: para que se sepa por qué no está
-                                 en el listado público. --}}
+                            {{-- Punto 6 del 05/10: para que se sepa por qué no
+                                 recibe inscripciones. Desde el 13/10 sí sale en
+                                 el listado y en el calendario. --}}
                             @if ($a->cerrada)
-                                <span data-cerrada title="Publicada para difusión: no sale en el listado ni en el calendario; su ficha se ve por enlace."
+                                <span data-cerrada title="Publicada para difusión: sale en el listado y en el calendario, pero no admite inscripciones ni aparece en las destacadas del inicio."
                                       style="font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;background:#eef1f8;color:#3d4a6b;">Actividad cerrada</span>
                             @endif
                             @foreach ($a->termsDe('tema') as $t)

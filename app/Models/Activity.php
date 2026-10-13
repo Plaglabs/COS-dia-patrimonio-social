@@ -277,11 +277,13 @@ class Activity extends Model
 
     /**
      * Sin las cerradas (punto 6 del 05/10): las que se publicaron sólo para
-     * difusión, para un público específico. Es el filtro de todo lo que
-     * INVITA a participar —el listado, el calendario, «otras actividades
-     * cerca» y el carrusel del home, destacadas a mano incluidas desde el
-     * 08/10—. La ficha sigue
-     * abierta por enlace, y los contadores las cuentan: están publicadas.
+     * difusión, para un público específico. Es el filtro de lo que INVITA a
+     * participar: el carrusel del home —destacadas a mano incluidas, desde el
+     * 08/10— y «otras actividades cerca» de la ficha.
+     *
+     * Desde el 13/10 el listado y el calendario de /actividades ya NO lo usan:
+     * ahí las cerradas salen como cualquier otra, y es su ficha la que dice que
+     * no admite inscripciones. Los contadores también las cuentan.
      */
     public function scopeAbiertasAlPublico(Builder $q): Builder
     {

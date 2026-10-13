@@ -43,12 +43,13 @@
             <dt class="helper" style="font-weight:700;">Tipo</dt>
             <dd style="margin:0;">{{ $activity->organization?->tipo_label }}</dd>
 
-            {{-- Punto 6 del 05/10: una cerrada no sale en el listado público,
-                 y desde aquí tiene que poder saberse. --}}
+            {{-- Punto 6 del 05/10: una cerrada no invita a participar, y desde
+                 aquí tiene que poder saberse. Desde el 13/10 sí sale en el
+                 listado y en el calendario; sólo queda fuera de las destacadas. --}}
             <dt class="helper" style="font-weight:700;">Inscripción previa</dt>
             <dd style="margin:0;" data-inscripcion-label>{{ $activity->inscripcion_label }}
                 @if ($activity->cerrada)
-                    <span class="helper">· no sale en el listado ni en el calendario; su ficha se ve por enlace</span>
+                    <span class="helper">· sale en el listado y en el calendario, sin inscripciones; no sale en las destacadas del inicio</span>
                 @endif
             </dd>
 

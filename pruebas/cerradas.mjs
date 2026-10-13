@@ -3,8 +3,9 @@
 // La pregunta «¿Es una actividad cerrada para un público específico?» sólo
 // aparece con «No» en «¿Requiere inscripción previa?», que no cambia. Una
 // cerrada:
-//   - no sale en /actividades, ni en el calendario, ni en el buscador, ni en
-//     «otras actividades cerca»;
+//   - desde el 13/10 SÍ sale en /actividades, en el calendario y en el
+//     buscador, como cualquier otra (del 05/10 al 13/10 se escondía); sigue
+//     fuera de «otras actividades cerca» y del carrusel del home;
 //   - tiene ficha por enlace directo, con «Esta es una actividad cerrada para
 //     un público específico. Fue publicada para difusión», sin formulario y sin
 //     invitar; el POST directo se rechaza;
@@ -137,18 +138,23 @@ try {
   const a3 = actividad(ABIERTA3);
   di('con inscripción previa nunca queda cerrada', a3?.cerrada === false && a3?.inscripcion_habilitada === true, JSON.stringify(a3));
 
-  t('3 · Fuera del listado, del calendario y del buscador');
+  t('3 · En el listado y el calendario sí (13/10); en lo que invita, no');
   const anon = await nav.createBrowserContext();
   const q = await pagina(anon);
   const textoDe = async (url) => { await q.goto(`${B}${url}`, { waitUntil: 'networkidle2' }); return q.evaluate(() => document.body.innerText); };
-  di('**no sale en /actividades**', ! (await textoDe('/actividades')).includes(CERRADA));
-  di('**ni buscándola por nombre**', ! (await textoDe(`/actividades?q=${encodeURIComponent(CERRADA)}`)).includes(CERRADA));
+  // Buscada por nombre: es el mismo listado, sin depender de en qué página
+  // cae por su fecha.
+  di('**sale en el listado de /actividades**', (await textoDe(`/actividades?q=${encodeURIComponent(CERRADA)}`)).includes(CERRADA));
+  const tarjetaCerrada = await q.evaluate((t) => [...document.querySelectorAll('.act-card')].find((c) => c.innerText.includes(t))?.querySelector('.btn')?.textContent.trim(), CERRADA);
+  di('con su tarjeta de siempre, «Ver actividad»', /Ver actividad/.test(tarjetaCerrada ?? ''), tarjetaCerrada);
   const mes = c.fecha_inicio.slice(0, 7);
   const cal = await textoDe(`/actividades?vista=calendario&mes=${mes}`);
-  di('**ni en el calendario de su mes**', ! cal.includes(CERRADA), mes);
-  di('la abierta del mismo día sí sale en el calendario', cal.includes(ABIERTA3));
+  di('**y en el calendario de su mes**', cal.includes(CERRADA), mes);
+  di('la abierta del mismo día también sale en el calendario', cal.includes(ABIERTA3));
   const vecina = ultima(tinker(`echo route('activities.show', App\\Models\\Activity::find(${ids.vecina}), false);`));
-  di('ni en «otras actividades cerca» de su región', ! (await textoDe(vecina)).includes(CERRADA));
+  di('sigue fuera de «otras actividades cerca» de su región', ! (await textoDe(vecina)).includes(CERRADA));
+  const carrusel = await (async () => { await q.goto(`${B}/`, { waitUntil: 'networkidle2' }); return q.evaluate(() => document.querySelector('[data-carousel="act"]')?.closest('section')?.innerText ?? ''); })();
+  di('**y fuera del carrusel de destacadas del home**', ! carrusel.includes(CERRADA));
 
   t('4 · Su ficha, por enlace directo');
   const ficha = ultima(tinker(`echo route('activities.show', App\\Models\\Activity::find(${c.id}), false);`));
