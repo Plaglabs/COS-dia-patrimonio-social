@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Registration;
 use App\Support\Filtro;
+use App\Support\Texto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use OpenSpout\Common\Entity\Row;
@@ -95,9 +96,10 @@ class ParticipantController extends Controller
             foreach ($inscritos as $i) {
                 $writer->addRow(Row::fromValues([
                     $i->id,
-                    $i->nombre,
-                    $i->correo,
-                    $i->telefonoParaExcel(),
+                    // Lo que escribió quien se inscribió, sin fórmulas: ver Texto::paraExcel.
+                    Texto::paraExcel($i->nombre),
+                    Texto::paraExcel($i->correo),
+                    Texto::paraExcel($i->telefono),
                     $i->created_at->locale('es')->isoFormat('D MMM YYYY'),
                     $i->es_mayor_edad ? 'Sí' : 'No',
                     // La misma regla que la pantalla: sólo se dice quién se dio de baja.

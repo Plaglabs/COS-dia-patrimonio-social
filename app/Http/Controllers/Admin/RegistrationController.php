@@ -7,6 +7,7 @@ use App\Models\Activity;
 use App\Models\Registration;
 use App\Support\Filtro;
 use App\Support\Listado;
+use App\Support\Texto;
 use Illuminate\Http\Request;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
@@ -133,12 +134,15 @@ class RegistrationController extends Controller
 
                 $writer->addRow(Row::fromValues([
                     $i->id,
-                    $i->nombre,
-                    $i->correo,
-                    $i->telefonoParaExcel(),
+                    // Todo lo que llega escrito de un formulario público
+                    // (inscripción, wizard, registro, encuesta) pasa sin
+                    // fórmulas: ver Texto::paraExcel.
+                    Texto::paraExcel($i->nombre),
+                    Texto::paraExcel($i->correo),
+                    Texto::paraExcel($i->telefono),
                     $i->es_mayor_edad ? 'Sí' : 'No',
-                    $a?->titulo ?? '(actividad borrada)',
-                    $a?->organization?->nombre ?? '',
+                    $a ? Texto::paraExcel($a->titulo) : '(actividad borrada)',
+                    Texto::paraExcel($a?->organization?->nombre),
                     \App\Support\Fecha::conHora($i->created_at),
                     $a ? self::fechaDeActividad($a) : '',
                     $e ? 'Sí' : 'No',
@@ -146,7 +150,7 @@ class RegistrationController extends Controller
                     ...($conRespuestas ? [
                         $e?->experiencia ?? '',
                         $e?->motivacion ?? '',
-                        $e?->significado ?? '',
+                        Texto::paraExcel($e?->significado),
                         $e ? $e->origen_label : '',
                     ] : []),
                 ]));

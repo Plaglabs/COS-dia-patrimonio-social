@@ -88,23 +88,6 @@ class Registration extends Model
         return $this->estado === 'cancelado' ? 'Cancelada' : null;
     }
 
-    /**
-     * El teléfono tal como va a una celda de Excel, o '' si no lo dio.
-     *
-     * Las dos exportaciones de inscritos escriben con OpenSpout a pelo, y
-     * OpenSpout convierte en FÓRMULA cualquier texto que empiece por `=`. El
-     * teléfono es texto libre de un formulario público, así que un
-     * `=HYPERLINK(...)` acabaría ejecutándose en el equipo de quien abre el
-     * archivo. Sólo se toca ese caso: un `+56 9…` es lo normal aquí y en una
-     * celda de texto de XLSX no es ninguna fórmula.
-     */
-    public function telefonoParaExcel(): string
-    {
-        $telefono = trim((string) $this->telefono);
-
-        return str_starts_with($telefono, '=') ? "'".$telefono : $telefono;
-    }
-
     /** Colores de la tabla de inscritos del prototipo. */
     public function getEstadoColorAttribute(): array
     {

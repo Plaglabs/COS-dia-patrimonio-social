@@ -89,6 +89,24 @@ class Texto
         return $cantidad.' '.static::plural($palabra, $cantidad);
     }
 
+    /**
+     * Un texto escrito por cualquiera, listo para una celda de Excel que se
+     * escribe con OpenSpout directamente (sin pasar por `Exportador`).
+     *
+     * OpenSpout convierte en FÓRMULA cualquier texto que empiece por `=`, así
+     * que un nombre, un correo o un teléfono escritos como `=HYPERLINK(...)` en
+     * un formulario público se ejecutarían en el equipo de quien abre el
+     * archivo. Se les antepone un apóstrofo, como hace `Exportador`. Sólo el
+     * `=`: en una celda de texto de XLSX un `+56 9…` no es ninguna fórmula y
+     * es lo normal en un teléfono de aquí.
+     */
+    public static function paraExcel(?string $texto): string
+    {
+        $texto = (string) $texto;
+
+        return str_starts_with($texto, '=') ? "'".$texto : $texto;
+    }
+
     /** Quita la tilde de la última vocal acentuada de la palabra. */
     private static function sinAcentoFinal(string $palabra): string
     {
