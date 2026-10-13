@@ -6,6 +6,7 @@ use App\Models\Region;
 use App\Models\Voluntariado;
 use App\Support\Filtro;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * /voluntariados: las oportunidades de Voluntariados Chile (13/10).
@@ -51,7 +52,7 @@ class VoluntariadoController extends Controller
 
         $hayFiltro = $region || $formato || $busqueda !== '';
 
-        return view('public.voluntariados.index', [
+        return $this->sinIndexarSiEstaApagada(response()->view('public.voluntariados.index', [
             'voluntariados' => $voluntariados,
             'total' => $todos->count(),
             'regiones' => $regiones,
@@ -60,7 +61,7 @@ class VoluntariadoController extends Controller
             // no habría forma de quitarlo.
             'conFiltros' => $todos->count() >= self::MINIMO_PARA_FILTRAR || $hayFiltro,
             'hayFiltro' => $hayFiltro,
-        ]);
+        ]));
     }
 
     public function show(Voluntariado $voluntariado)
@@ -74,9 +75,23 @@ class VoluntariadoController extends Controller
             ->when($voluntariado->region_ids, fn ($q, $ids) => $q->porRegion($ids[0]))
             ->porFecha()->take(3)->get();
 
-        return view('public.voluntariados.show', [
+        return $this->sinIndexarSiEstaApagada(response()->view('public.voluntariados.show', [
             'vol' => $voluntariado,
             'relacionados' => $relacionados,
-        ]);
+        ]));
+    }
+
+    /**
+     * Con la sección apagada, además del <meta robots> de la vista, la
+     * cabecera X-Robots-Tag: la respetan los buscadores aunque no lean el
+     * HTML. Ver `Voluntariado::seccionVisible()`.
+     */
+    private function sinIndexarSiEstaApagada(Response $respuesta): Response
+    {
+        if (! Voluntariado::seccionVisible()) {
+            $respuesta->headers->set('X-Robots-Tag', 'noindex, nofollow');
+        }
+
+        return $respuesta;
     }
 }

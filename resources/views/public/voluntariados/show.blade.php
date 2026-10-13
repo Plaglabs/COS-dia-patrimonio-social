@@ -3,6 +3,10 @@
 @section('title', $vol->titulo . ' · ' . config('app.name'))
 @section('meta', Str::limit(strip_tags((string) $vol->descripcion), 150))
 @section('imagen', $vol->imagen)
+{{-- Con la sección apagada, que no la indexe nadie. Ver Voluntariado::seccionVisible(). --}}
+@unless (\App\Models\Voluntariado::seccionVisible())
+    @section('noindex', '1')
+@endunless
 
 @section('content')
 {{--

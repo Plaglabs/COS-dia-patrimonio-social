@@ -57,9 +57,15 @@ Schedule::command('dps:invitar-evaluacion')
  * Los voluntariados de Voluntariados Chile (13/10): la lista completa, cada
  * hora. A los 17 y no en punto, para no coincidir con los otros dos; y si una
  * pasada falla porque MySQL no estaba, la siguiente hora lo repone.
+ *
+ * Sólo si hay VCH_API_KEY en el .env: sin clave no hay nada que traer, y cada
+ * hora quedaría una pasada «fallida» y un aviso en el log. Con la clave puesta
+ * sincroniza aunque la sección esté apagada en Configuración, para que al
+ * encenderla ya tenga contenido.
  */
 Schedule::command('dps:sincronizar-voluntariados')
     ->hourlyAt(17)
+    ->when(fn () => filled(config('services.voluntariados_chile.key')))
     ->withoutOverlapping(30);
 
 /* Los trabajos fallidos se acumulan; un mes de historial es suficiente. */

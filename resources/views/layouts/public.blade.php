@@ -31,10 +31,12 @@
     <title>{{ $seoTitulo }}</title>
     <meta name="description" content="{{ $seoDescripcion }}">
 
-    @unless (\App\Models\Setting::get('seo_indexable', true))
-        {{-- Mientras el sitio no esta listo, que no lo indexe nadie. --}}
+    {{-- Mientras el sitio no esta listo, que no lo indexe nadie. Y una vista
+         suelta puede pedirlo con @section('noindex'): la usan los
+         voluntariados mientras la sección esté apagada (13/10). --}}
+    @if (! \App\Models\Setting::get('seo_indexable', true) || View::hasSection('noindex'))
         <meta name="robots" content="noindex, nofollow">
-    @endunless
+    @endif
 
     {{-- Lo que se ve al compartir el enlace en redes o en WhatsApp. --}}
     <meta property="og:type" content="website">

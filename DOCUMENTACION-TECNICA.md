@@ -626,7 +626,13 @@ evaluación. Por eso viven en su propia tabla, `voluntariados`, y no en
 - **No se publica el contacto** (nombre y correo de una persona) que trae la
   API. Se guarda, con todo lo demás, en `crudo`: la respuesta original entera.
 - La clave va en el `.env` de cada servidor como `VCH_API_KEY`, nunca en el
-  repositorio.
+  repositorio. Sin ella, el planificador no lanza la sincronización.
+- **Se enciende en Configuración → General → «Mostrar la sección de
+  voluntariados»** (`voluntariados_visible`, apagado por defecto). Apagada, el
+  menú «Voluntariado» lleva a voluntariadoschile.cl como antes, ninguna página
+  enlaza a `/voluntariados` y la sección lleva `noindex` (meta y cabecera
+  `X-Robots-Tag`), aunque se puede abrir por su dirección. Encendida, el menú
+  lleva a la sección y se puede indexar. Ver `Voluntariado::seccionVisible()`.
 
 ---
 

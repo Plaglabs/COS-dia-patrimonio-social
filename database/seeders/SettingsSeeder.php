@@ -131,6 +131,17 @@ class SettingsSeeder extends Seeder
                 'label' => 'Permitir que una organización tenga más de una cuenta',
                 'descripcion' => 'Encendido, quien elige una organización que ya tiene cuenta se suma a ella y se avisa a su cuenta principal. Apagado, no puede. Apagarlo no saca a quien ya se sumó: sólo deja de admitir nuevas.',
             ],
+            /*
+             * La sección /voluntariados (13/10). Apagado por defecto: el menú
+             * «Voluntariado» sigue llevando a voluntariadoschile.cl y la
+             * sección, aunque existe, no se enlaza y lleva noindex. La
+             * sincronización depende de VCH_API_KEY, no de esto.
+             */
+            [
+                'grupo' => 'general', 'clave' => 'voluntariados_visible', 'tipo' => 'bool', 'valor' => '0',
+                'label' => 'Mostrar la sección de voluntariados',
+                'descripcion' => 'Encendido, el menú «Voluntariado» lleva a /voluntariados y Google puede indexarla. Apagado, el menú lleva a voluntariadoschile.cl y la sección no se enlaza ni se indexa. Necesita VCH_API_KEY en el .env.',
+            ],
             [
                 'grupo' => 'general', 'clave' => 'kit_difusion_url', 'tipo' => 'texto', 'valor' => '',
                 'label' => 'Enlace al kit de difusión',

@@ -2,6 +2,10 @@
 
 @section('title', 'Voluntariados · ' . config('app.name'))
 @section('meta', 'Oportunidades de voluntariado de Voluntariados Chile para el Día del Patrimonio Social.')
+{{-- Con la sección apagada, que no la indexe nadie. Ver Voluntariado::seccionVisible(). --}}
+@unless (\App\Models\Voluntariado::seccionVisible())
+    @section('noindex', '1')
+@endunless
 
 @section('content')
 {{--

@@ -1,7 +1,10 @@
 // /voluntariados y su ficha (13/10), en Chrome.
 //
-//   1 · El menú «Voluntariado» lleva a /voluntariados, en la misma pestaña,
-//       en escritorio y en el desplegable del teléfono.
+//   1 · El interruptor de Configuración «Mostrar la sección de voluntariados»
+//       (13/10). Apagado: el menú lleva a voluntariadoschile.cl en otra
+//       pestaña, ninguna página pública enlaza a /voluntariados, y la sección
+//       lleva noindex (meta y cabecera). Encendido: el menú lleva a
+//       /voluntariados en la misma pestaña y sin noindex. Lo deja como estaba.
 //   2 · Con lo que haya en la base (hoy, una sola oportunidad): la tarjeta es
 //       la misma que la de las actividades, sin barra de filtros si hay menos
 //       de dos, y con el enlace a todo Voluntariados Chile al final.
@@ -56,14 +59,55 @@ await p.setViewport({ width: 1440, height: 1000 });
 const ir = async (ruta) => { const r = await p.goto(B + ruta, { waitUntil: 'networkidle0' }); return r.status(); };
 const tarjetas = () => p.$$eval('.act-card', (cs) => cs.map((c) => ({ titulo: c.querySelector('h3')?.textContent.trim(), cta: c.querySelector('.btn')?.textContent.trim(), href: c.querySelector('.btn')?.getAttribute('href') })));
 
+let visibleAntes = null;
 try {
-  t('1 · El menú');
-  await ir('/');
-  const menu = await p.$eval('.nav-links a.navlink:nth-child(2)', (a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href'), target: a.getAttribute('target') }));
-  di('«Voluntariado» lleva a /voluntariados', menu.texto === 'Voluntariado' && menu.href.endsWith('/voluntariados'), menu.href);
-  di('en la misma pestaña', menu.target === null);
-  const movil = await p.$$eval('#menu-movil a.navlink-movil', (as) => as.map((a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href'), target: a.getAttribute('target') })).find((a) => a.texto === 'Voluntariado'));
-  di('y en el menú del teléfono, igual', movil?.href.endsWith('/voluntariados') && movil.target === null, JSON.stringify(movil));
+  const menus = async () => {
+    await ir('/');
+    const escritorio = await p.$eval('.nav-links a.navlink:nth-child(2)', (a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href'), target: a.getAttribute('target') }));
+    const movil = await p.$$eval('#menu-movil a.navlink-movil', (as) => as.map((a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href'), target: a.getAttribute('target') })).find((a) => a.texto === 'Voluntariado'));
+    return { escritorio, movil };
+  };
+  const noindex = async (ruta) => {
+    const r = await p.goto(B + ruta, { waitUntil: 'networkidle0' });
+    const meta = await p.$eval('meta[name="robots"]', (m) => m.content).catch(() => '');
+    return { meta: /noindex/.test(meta), cabecera: /noindex/.test(r.headers()['x-robots-tag'] ?? '') };
+  };
+  // Setting::get devuelve un booleano, y `echo false` no imprime nada: se
+  // pide '1' o '0' explícito.
+  visibleAntes = tinker("echo App\\Models\\Setting::get('voluntariados_visible', false) ? '1' : '0';") === '1';
+  const ponerVisible = (v) => tinker(`App\\Models\\Setting::where('clave', 'voluntariados_visible')->first()->update(['valor' => '${v}']); echo 'OK';`);
+  const indexable = tinker("echo App\\Models\\Setting::get('seo_indexable', '1') ? 'si' : 'no';") === 'si';
+
+  t('1 · Interruptor APAGADO (así llega a producción)');
+  ponerVisible('0');
+  let m = await menus();
+  di('**«Voluntariado» lleva a voluntariadoschile.cl**', m.escritorio.texto === 'Voluntariado' && m.escritorio.href === 'https://voluntariadoschile.cl/oportunidades', m.escritorio.href);
+  di('en otra pestaña, como antes', m.escritorio.target === '_blank');
+  di('y en el menú del teléfono, igual', m.movil?.href === 'https://voluntariadoschile.cl/oportunidades' && m.movil.target === '_blank', JSON.stringify(m.movil));
+  const enlazan = [];
+  for (const ruta of ['/', '/actividades', '/actividades?vista=calendario', '/preguntas-frecuentes', '/privacidad', '/terminos-y-condiciones']) {
+    await ir(ruta);
+    if (await p.$$eval('a[href]', (as) => as.some((a) => new URL(a.href).pathname.startsWith('/voluntariados')))) enlazan.push(ruta);
+  }
+  di('**ninguna página pública enlaza a /voluntariados**', enlazan.length === 0, enlazan.join(' '));
+  let n = await noindex('/voluntariados');
+  di('**el listado lleva noindex: meta y cabecera X-Robots-Tag**', n.meta && n.cabecera, JSON.stringify(n));
+  const unaFicha = tinker("echo App\\Models\\Voluntariado::publicos()->value('slug') ?? '';");
+  if (unaFicha) {
+    n = await noindex(`/voluntariados/${unaFicha}`);
+    di('y la ficha también', n.meta && n.cabecera, JSON.stringify(n));
+  }
+  di('la sección sigue abriéndose por su dirección', await ir('/voluntariados') === 200);
+
+  t('1 · Interruptor ENCENDIDO');
+  ponerVisible('1');
+  m = await menus();
+  di('**«Voluntariado» lleva a /voluntariados**', m.escritorio.href.endsWith('/voluntariados'), m.escritorio.href);
+  di('en la misma pestaña', m.escritorio.target === null);
+  di('y en el menú del teléfono, igual', m.movil?.href.endsWith('/voluntariados') && m.movil.target === null, JSON.stringify(m.movil));
+  n = await noindex('/voluntariados');
+  di('**sin cabecera noindex**', ! n.cabecera, JSON.stringify(n));
+  if (indexable) di('y sin meta noindex (el sitio es indexable)', ! n.meta, JSON.stringify(n));
 
   t('2 · Con lo que hay hoy en la base');
   const reales = +tinker('echo App\\Models\\Voluntariado::publicos()->count();');
@@ -140,6 +184,8 @@ try {
   }
 } finally {
   limpiar();
+  // El interruptor, como estaba.
+  if (visibleAntes !== null) tinker(`App\\Models\\Setting::where('clave', 'voluntariados_visible')->first()->update(['valor' => '${visibleAntes ? '1' : '0'}']); echo 'OK';`);
   await nav.close();
 }
 

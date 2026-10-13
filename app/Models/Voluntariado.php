@@ -30,6 +30,23 @@ class Voluntariado extends Model
         'prior_experience' => 'Experiencia previa',
     ];
 
+    /** Su sitio, a donde lleva el menú mientras la sección esté apagada. */
+    public const SU_SITIO = 'https://voluntariadoschile.cl/oportunidades';
+
+    /**
+     * ¿Está encendida la sección? Configuración → General →
+     * «Mostrar la sección de voluntariados» (13/10).
+     *
+     * Apagada, la sección existe y se puede abrir por su dirección, pero no se
+     * enlaza desde ninguna parte del sitio —el menú lleva a su sitio— y lleva
+     * noindex, para que no la encuentre nadie por Google. Encenderla es mover
+     * el interruptor (y tener VCH_API_KEY en el .env para que haya contenido).
+     */
+    public static function seccionVisible(): bool
+    {
+        return (bool) Setting::get('voluntariados_visible', false);
+    }
+
     protected function casts(): array
     {
         return [
