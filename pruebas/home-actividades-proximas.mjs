@@ -4,10 +4,12 @@
 //   8 · Destacadas: fuera las que ya pasaron y las cerradas, AUNQUE estén
 //       destacadas a mano. El panel decide cuál de las que cumplen se
 //       destaca, no saltarse el filtro.
+//       Desde el 13/10 las destacadas van en los primeros lugares y detrás se
+//       rellena con las próximas hasta el número de la sección, sin repetir.
 //   9 · El botón de «¿Qué es el Patrimonio Social?» lleva al sitio del DPS,
 //       en otra pestaña.
 //
-// Monta cinco actividades con un sello, apaga las destacadas que hubiera,
+// Monta seis actividades con un sello, apaga las destacadas que hubiera,
 // prueba los dos modos de la sección y lo deja todo como estaba. Lee el HTML
 // que pinta el servidor: el carrusel no depende de JavaScript para elegir.
 //
@@ -29,12 +31,14 @@ const SELLO = Date.now();
 const slug = (k) => `home-${k}-${SELLO}`;
 
 /*
- * Las cinco, con fechas relativas a hoy en Chile:
+ * Las seis, con fechas relativas a hoy en Chile:
  *   pasada-dest   — pasó hace 10 días, destacada a mano      → nunca
  *   cerrada-dest  — dentro de 5 días, cerrada, destacada     → nunca
  *   varios-dest   — empezó hace 3 días y termina en 3, dest. → sí (no ha pasado)
  *   proxima       — dentro de 7 días, abierta, sin destacar  → sí en el automático
  *   pasada        — pasó ayer, abierta, sin destacar         → nunca
+ *   lejana-dest   — dentro de 20 días, destacada             → sí, delante de
+ *                   «proxima» aunque su fecha sea posterior
  */
 const ACTIVIDADES = {
   'pasada-dest': { ini: -10, fin: null, destacada: true, cerrada: false },
@@ -42,14 +46,15 @@ const ACTIVIDADES = {
   'varios-dest': { ini: -3, fin: 3, destacada: true, cerrada: false },
   proxima: { ini: 7, fin: null, destacada: false, cerrada: false },
   pasada: { ini: -1, fin: null, destacada: false, cerrada: false },
+  'lejana-dest': { ini: 20, fin: null, destacada: true, cerrada: false },
 };
 
 const fila = ultima(tinker(`$s = App\\Models\\HomeSection::where('clave','actividades')->first(); echo $s ? json_encode(['c' => $s->contenido]) : 'null';`));
 const destacadasAntes = ultima(tinker(`echo implode(',', App\\Models\\Activity::where('destacada', true)->pluck('id')->all()) ?: '-';`));
 
-const ponerSeccion = (seleccion) => tinker(
+const ponerSeccion = (seleccion, cuantas = 24) => tinker(
   `$s = App\\Models\\HomeSection::firstOrCreate(['clave' => 'actividades'], ['orden' => 50, 'activo' => true]);`
-  + ` $s->contenido = array_merge($s->contenido ?? [], ['seleccion' => '${seleccion}', 'cuantas' => 24]); $s->save(); echo 'OK';`);
+  + ` $s->contenido = array_merge($s->contenido ?? [], ['seleccion' => '${seleccion}', 'cuantas' => ${cuantas}]); $s->save(); echo 'OK';`);
 
 const carrusel = async () => {
   const html = await (await fetch(`${B}/`)).text();
@@ -58,6 +63,21 @@ const carrusel = async () => {
 
   return Object.fromEntries(Object.keys(ACTIVIDADES).map((k) => [k, trozo.includes(`/${slug(k)}"`)]));
 };
+
+// Las fichas del carrusel en el orden en que salen, una vez cada una aunque la
+// tarjeta enlace dos veces; y si alguna aparece más veces que las demás, que
+// sería una actividad repetida.
+const tarjetas = async () => {
+  const html = await (await fetch(`${B}/`)).text();
+  const i = html.indexOf('data-carousel="act"');
+  const trozo = i < 0 ? '' : html.slice(i, html.indexOf('</section>', i));
+  const enlaces = [...trozo.matchAll(/href="[^"]*\/activity\/(\d+)\/[^"]*"/g)].map((m) => m[1]);
+  const orden = [...new Set(enlaces)];
+  const veces = orden.map((id) => enlaces.filter((e) => e === id).length);
+
+  return { orden, repetida: new Set(veces).size > 1 };
+};
+const idDe = (k) => ultima(tinker(`echo App\\Models\\Activity::where('slug', '${slug(k)}')->value('id');`));
 
 try {
   for (const [k, a] of Object.entries(ACTIVIDADES)) {
@@ -78,12 +98,32 @@ try {
   di('**una destacada a mano que ya pasó NO sale**', ! c['pasada-dest']);
   di('una destacada de varios días que sigue en curso sí sale', c['varios-dest']);
   di('**una cerrada destacada a mano NO sale**', ! c['cerrada-dest']);
-  di('las no destacadas no salen mientras haya destacadas', ! c.proxima && ! c.pasada);
+  di('una destacada lejana sale', c['lejana-dest']);
+  di('**detrás se rellena con las próximas** (13/10)', c.proxima, JSON.stringify(c));
+  di('la que pasó ayer sigue fuera', ! c.pasada);
+
+  const ids = Object.fromEntries(Object.keys(ACTIVIDADES).map((k) => [k, idDe(k)]));
+  let tj = await tarjetas();
+  const pos = (k) => tj.orden.indexOf(ids[k]);
+  di('**las dos destacadas, en los dos primeros lugares**', [pos('varios-dest'), pos('lejana-dest')].sort().join() === '0,1', tj.orden.slice(0, 4).join(','));
+  di('entre ellas, por fecha: la en curso antes que la lejana', pos('varios-dest') < pos('lejana-dest'));
+  di('**la destacada lejana va delante de la próxima sin destacar**', pos('lejana-dest') < pos('proxima'), `${pos('lejana-dest')} / ${pos('proxima')}`);
+  di('**ninguna sale dos veces**', tj.orden.length === new Set(tj.orden).size && ! tj.repetida);
+  const elegibles = +ultima(tinker(`echo App\\Models\\Activity::published()->conFechaProxima()->abiertasAlPublico()->count();`));
+  di('completa hasta el número de la sección (24) o hasta las que haya', tj.orden.length === Math.min(24, elegibles), `${tj.orden.length} de ${elegibles}`);
+
+  ponerSeccion('destacadas', 2);
+  tj = await tarjetas();
+  di('con tope 2 y dos destacadas: sólo las dos destacadas', tj.orden.length === 2 && tj.orden.includes(ids['varios-dest']) && tj.orden.includes(ids['lejana-dest']), tj.orden.join(','));
+  ponerSeccion('destacadas', 3);
+  tj = await tarjetas();
+  di('con tope 3: las dos destacadas y, tercera, la próxima abierta', tj.orden.length === 3 && tj.orden[2] === ids.proxima, tj.orden.join(','));
+  ponerSeccion('destacadas');
 
   t('Modo «destacadas», sin ninguna vigente: cae a las próximas');
 
   // Quedan destacadas sólo la pasada y la cerrada: ninguna cumple.
-  tinker(`App\\Models\\Activity::whereIn('slug', ['${slug('varios-dest')}'])->update(['destacada' => false]); echo 'OK';`);
+  tinker(`App\\Models\\Activity::whereIn('slug', ['${slug('varios-dest')}', '${slug('lejana-dest')}'])->update(['destacada' => false]); echo 'OK';`);
   c = await carrusel();
   di('**con sólo una pasada y una cerrada destacadas, cae a las próximas**', c.proxima, JSON.stringify(c));
   di('sin la pasada destacada', ! c['pasada-dest']);
@@ -95,7 +135,7 @@ try {
 
   ponerSeccion('proximas');
   c = await carrusel();
-  di('salen las próximas abiertas', c.proxima && c['varios-dest']);
+  di('salen las próximas abiertas', c.proxima && c['varios-dest'] && c['lejana-dest']);
   di('**ninguna de las que ya pasaron**', ! c.pasada && ! c['pasada-dest']);
   di('ni las cerradas', ! c['cerrada-dest']);
 

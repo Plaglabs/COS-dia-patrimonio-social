@@ -103,7 +103,7 @@ class CatalogoHome
                     'titulo' => ['label' => 'Titular', 'tipo' => 'texto', 'defecto' => 'En cada región, múltiples actividades solidarias donde participar'],
                     'bajada' => ['label' => 'Bajada', 'tipo' => 'parrafo', 'defecto' => 'Conoce iniciativas abiertas a todo público, encuentra las más cercanas a ti y sé parte del movimiento.'],
                     'seleccion' => ['label' => 'Qué actividades salen', 'tipo' => 'opciones', 'defecto' => 'destacadas', 'opciones' => [
-                        'destacadas' => 'Sólo las marcadas como destacadas (y si no hay, las próximas)',
+                        'destacadas' => 'Primero las marcadas como destacadas y, detrás, las próximas',
                         'proximas' => 'Siempre las próximas publicadas, sin mirar si están destacadas',
                     ]],
                     'cuantas' => ['label' => 'Cuántas mostrar', 'tipo' => 'numero', 'defecto' => 9, 'min' => 1, 'max' => 24],

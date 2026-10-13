@@ -170,12 +170,18 @@ try {
     }
     return vistos;
   });
-  const datosHome = json(`echo json_encode(App\\Models\\Activity::whereIn('id', [${enHome.join(',') || 0}])->get()->mapWithKeys(fn ($a) => [$a->id => ['f' => $a->fecha_inicio?->toDateString(), 'perm' => (bool) $a->sin_fecha_definida, 'paso' => $a->yaPaso()]]));`);
+  const datosHome = json(`echo json_encode(App\\Models\\Activity::whereIn('id', [${enHome.join(',') || 0}])->get()->mapWithKeys(fn ($a) => [$a->id => ['f' => $a->fecha_inicio?->toDateString(), 'perm' => (bool) $a->sin_fecha_definida, 'paso' => $a->yaPaso(), 'dest' => (bool) $a->destacada]]));`);
   const fechasHome = enHome.map((id) => datosHome[id]?.f);
+  // Desde el 13/10 las destacadas van delante y detrás las demás, cada grupo
+  // por fecha: el orden de fecha se mira dentro de cada grupo.
+  const grupo = (dest) => enHome.filter((id) => datosHome[id]?.dest === dest).map((id) => datosHome[id]?.f);
+  const ordenado = (fs) => JSON.stringify(fs) === JSON.stringify([...fs].sort());
   di('el home enseña actividades', enHome.length > 0, `${enHome.length}`);
   di('ninguna sin fecha ni permanente (las «Por definir» de antes)', enHome.every((id) => datosHome[id]?.f && ! datosHome[id]?.perm));
   di('ninguna que ya pasó', enHome.every((id) => ! datosHome[id]?.paso));
-  di('en orden de fecha, ascendente', JSON.stringify(fechasHome) === JSON.stringify([...fechasHome].sort()), fechasHome.join(' '));
+  di('las destacadas delante de las demás', enHome.findIndex((id) => ! datosHome[id]?.dest) === -1
+    || enHome.slice(enHome.findIndex((id) => ! datosHome[id]?.dest)).every((id) => ! datosHome[id]?.dest), enHome.map((id) => datosHome[id]?.dest ? 'D' : '·').join(''));
+  di('y cada grupo en orden de fecha, ascendente', ordenado(grupo(true)) && ordenado(grupo(false)), fechasHome.join(' '));
   di('ni la permanente ni la «por definir» destacadas a mano', ! enHome.includes(I.permanente) && ! enHome.includes(I.pordefinir));
   const textoHome = await pub.evaluate(() => [...document.querySelectorAll('.carousel')].map((c) => c.innerText).join(' '));
   di('el carrusel no dice «Por definir»', ! textoHome.includes('Por definir'));

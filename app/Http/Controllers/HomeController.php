@@ -71,9 +71,11 @@ class HomeController extends Controller
     /**
      * Las actividades del carrusel, según lo que pida la sección.
      *
-     * En «destacadas» se cae a las próximas publicadas cuando no hay ninguna
-     * marcada: el home no puede quedarse con un hueco porque nadie se haya
-     * acordado de destacar nada.
+     * En «destacadas», las marcadas van en los primeros lugares y detrás se
+     * rellena con las próximas hasta completar las que pida la sección (13/10).
+     * Antes salían SÓLO las destacadas: marcar una dejaba el carrusel con una
+     * tarjeta y un hueco al lado. El cliente pidió «primeros lugares», no
+     * únicos.
      *
      * @return Collection<int, Activity>
      */
@@ -102,7 +104,15 @@ class HomeController extends Controller
 
         $destacadas = $base()->featured()->get();
 
-        return $destacadas->isNotEmpty() ? $destacadas : $base()->get();
+        if ($destacadas->count() >= $cuantas) {
+            return $destacadas;
+        }
+
+        // Por id y no por `destacada = false`: así ninguna sale dos veces.
+        $resto = $base()->whereNotIn('id', $destacadas->modelKeys())
+            ->take($cuantas - $destacadas->count())->get();
+
+        return $destacadas->concat($resto)->values();
     }
 
     /**

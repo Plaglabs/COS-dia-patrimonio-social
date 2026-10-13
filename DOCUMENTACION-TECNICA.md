@@ -563,6 +563,12 @@ permanente», al final (`vigentes()`); el carrusel no (`conFechaProxima()`),
 porque enseña lo que viene y una permanente no tiene día. El total que pinta el
 listado sale de la misma consulta, así que siempre cuadra con lo que se ve.
 
+En el carrusel, las **destacadas** a mano (Panel → la ficha de la actividad →
+«Destacar en el home») van en los primeros lugares, también por fecha entre
+ellas, y detrás se rellena con las próximas hasta el número que pida la
+sección, sin repetir ninguna. Destacar no se salta los filtros: una destacada
+que ya pasó, cerrada o permanente no sale.
+
 El calendario comparte los filtros pero **no** este recorte: cada actividad se
 queda en su mes, también las pasadas.
 
