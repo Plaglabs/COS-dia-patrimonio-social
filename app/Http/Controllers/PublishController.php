@@ -126,7 +126,7 @@ class PublishController extends Controller
                 'email' => match ($motivo) {
                     'rol' => 'Esa es una cuenta de administración, no de organización. Las actividades se publican desde una cuenta de organización.',
                     'inactiva' => 'Esa cuenta está desactivada. Escríbenos si crees que es un error.',
-                    default => 'No encontramos una cuenta con ese correo y contraseña.',
+                    default => $acceso->avisoDeCredenciales($datos['email']),
                 },
             ]);
         }

@@ -148,7 +148,7 @@ await p.type('.acceso-caja input[type="password"]', 'estanoes');
 await p.evaluate(() => [...document.querySelectorAll('.acceso-caja button')].find((b) => /Entrar/.test(b.textContent))?.click());
 await p.waitForFunction(() => Alpine.$data(document.querySelector('[x-data^="wizard"]')).accesoError !== '', { timeout: 6000 });
 
-di('Una contraseña mala lo dice', /No encontramos una cuenta/.test((await estado()).accesoError),
+di('Una contraseña mala lo dice', /La contraseña no es correcta/.test((await estado()).accesoError),
   (await estado()).accesoError);
 di('Y no abre sesión', (await estado()).conSesion === false);
 di('Lo escrito sigue intacto tras el fallo',

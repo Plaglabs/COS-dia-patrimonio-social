@@ -78,6 +78,28 @@ class ControlDeAcceso
         $this->registrar($request, $panel, $motivo, $request->input('email'), $usuario);
     }
 
+    /**
+     * El aviso de un correo y una contraseña que no casan: si hay una cuenta
+     * con ese correo, lo que hay que corregir es la contraseña; si no, ese
+     * usuario no existe.
+     *
+     * Antes era un solo aviso para los dos casos, y quien tecleaba mal el
+     * correo se quedaba buscando una contraseña que estaba bien. El precio es
+     * que estas pantallas dicen qué correos están registrados, igual que ya lo
+     * decían el aviso de «ya tiene cuenta» del wizard y el registro. El bloqueo
+     * por intentos no lo acota: cuenta por correo, y averiguar si un correo
+     * existe cuesta un solo intento.
+     *
+     * Vive aquí, y no en cada controlador, para que las tres puertas —los dos
+     * accesos y el del wizard— digan lo mismo.
+     */
+    public function avisoDeCredenciales(string $email): string
+    {
+        return User::where('email', $email)->exists()
+            ? 'La contraseña no es correcta. Revísala o usa «¿Olvidaste tu contraseña?».'
+            : 'No existe ningún usuario con ese correo.';
+    }
+
     /** Entrada correcta: la fila de éxito pone el contador a cero. */
     public function exito(Request $request, string $panel, User $usuario): void
     {

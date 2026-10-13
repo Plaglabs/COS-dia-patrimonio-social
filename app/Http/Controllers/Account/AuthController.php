@@ -65,7 +65,7 @@ class AuthController extends Controller
                 'email' => match ($motivo) {
                     'rol' => 'Esa es una cuenta de administración, no de organización.',
                     'inactiva' => 'Esa cuenta está desactivada. Escríbenos si crees que es un error.',
-                    default => 'No encontramos una cuenta con ese correo y contraseña.',
+                    default => $this->acceso->avisoDeCredenciales($datos['email']),
                 },
             ]);
         }
