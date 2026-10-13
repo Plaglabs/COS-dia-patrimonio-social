@@ -122,7 +122,7 @@ class RegistrationController extends Controller
                  * «confirmado». Lo que sí importa —si se dio de baja— va en su
                  * propia columna, que se lee sola.
                  */
-                [...['ID', 'Nombre', 'Correo', 'Mayor de edad', 'Actividad', 'Organización',
+                [...['ID', 'Nombre', 'Correo', 'Teléfono', 'Mayor de edad', 'Actividad', 'Organización',
                     'Fecha de inscripción', 'Fecha de la actividad', 'Respondió la evaluación', 'Baja'], ...$preguntas],
                 (new Style)->withFontBold(true),
             ));
@@ -135,6 +135,7 @@ class RegistrationController extends Controller
                     $i->id,
                     $i->nombre,
                     $i->correo,
+                    $i->telefonoParaExcel(),
                     $i->es_mayor_edad ? 'Sí' : 'No',
                     $a?->titulo ?? '(actividad borrada)',
                     $a?->organization?->nombre ?? '',

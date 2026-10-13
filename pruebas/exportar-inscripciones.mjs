@@ -1,6 +1,7 @@
 // «Exportar inscripciones» del admin — tanda del 05/10, punto 7a.
 //
-// SÓLO los participantes: nombre, correo, mayor de edad, actividad,
+// SÓLO los participantes: nombre, correo, teléfono (13/10, ver
+// `exportar-telefono.mjs`), mayor de edad, actividad,
 // organización, fecha de inscripción y fecha de la actividad, con el ID
 // primero y «Baja» al final. Las columnas de la actividad que se añadieron el
 // 23/09 se fueron a Actividades → Exportar (`exportar-actividades.mjs`).
@@ -84,7 +85,7 @@ try {
 
     t('1 · Las columnas');
 
-    const esperadas = ['ID', 'Nombre', 'Correo', 'Mayor de edad', 'Actividad', 'Organización',
+    const esperadas = ['ID', 'Nombre', 'Correo', 'Teléfono', 'Mayor de edad', 'Actividad', 'Organización',
         'Fecha de inscripción', 'Fecha de la actividad', 'Respondió la evaluación', 'Baja'];
     di('**exactamente las pedidas**, con el ID primero', JSON.stringify(cab) === JSON.stringify(esperadas), cab.join(' | '));
     di('sin las de la actividad (se fueron a su exportación)', ! ['Descripción', 'Temas', 'Dirección', 'Formato', 'Cupos totales'].some((c) => cab.includes(c)));

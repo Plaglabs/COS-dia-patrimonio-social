@@ -88,7 +88,7 @@ class ParticipantController extends Controller
             $writer->openToFile('php://output');
 
             $writer->addRow(Row::fromValuesWithStyle(
-                ['ID', 'Nombre', 'Correo', 'Fecha inscripción', 'Mayor de edad', 'Baja'],
+                ['ID', 'Nombre', 'Correo', 'Teléfono', 'Fecha inscripción', 'Mayor de edad', 'Baja'],
                 (new Style)->withFontBold(true),
             ));
 
@@ -97,6 +97,7 @@ class ParticipantController extends Controller
                     $i->id,
                     $i->nombre,
                     $i->correo,
+                    $i->telefonoParaExcel(),
                     $i->created_at->locale('es')->isoFormat('D MMM YYYY'),
                     $i->es_mayor_edad ? 'Sí' : 'No',
                     // La misma regla que la pantalla: sólo se dice quién se dio de baja.
