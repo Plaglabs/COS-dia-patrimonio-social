@@ -22,6 +22,9 @@ yarn-error.log
 /.zed
 .env.bak
 
+# A qué servidor despliega .deploy/desplegar.sh. Se copia de servidor.env.example.
+/.deploy/servidor.env
+
 # La configuración de Claude Code dentro del contenedor (CLAUDE_CONFIG_DIR).
 /.claude/config
 
