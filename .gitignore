@@ -22,6 +22,13 @@ yarn-error.log
 /.zed
 .env.bak
 
+# Lo que cPanel escribe en el docroot del servidor: los ajustes de PHP del
+# MultiPHP INI Editor (con PHP-FPM, el .user.ini es el que se aplica) y el
+# error_log que esos ajustes piden.
+/public/.user.ini
+/public/php.ini
+error_log
+
 # A qué servidor despliega .deploy/desplegar.sh. Se copia de servidor.env.example.
 /.deploy/servidor.env
 
