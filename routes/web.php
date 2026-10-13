@@ -443,6 +443,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/paginas/home/{seccion}/borrador', [Admin\HomeSectionController::class, 'descartarBorrador'])->name('home.borrador.descartar');
         Route::post('/paginas/home/{seccion}/versiones/{version}/restaurar', [Admin\HomeSectionController::class, 'restaurar'])->name('home.restaurar');
         Route::get('/paginas/privacidad', [Admin\PaginaLegalController::class, 'privacidad'])->name('paginas.privacidad');
+        Route::get('/paginas/terminos-y-condiciones', [Admin\PaginaLegalController::class, 'terminos'])->name('paginas.terminos');
         // Preguntas frecuentes: una fila por pregunta, en dos pestañas (12/10).
         Route::get('/paginas/preguntas-frecuentes', [Admin\FaqController::class, 'index'])->name('paginas.preguntas-frecuentes');
         Route::get('/paginas/preguntas-frecuentes/nueva', [Admin\FaqController::class, 'create'])->name('faq.create');

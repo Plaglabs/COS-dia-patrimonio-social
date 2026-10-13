@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 
 /**
- * La política de privacidad. Las preguntas frecuentes estuvieron aquí del
+ * La política de privacidad y, desde el 13/10, los términos y condiciones.
+ * Las preguntas frecuentes estuvieron aquí del
  * 09/10 al 12/10; ahora tienen su propia pantalla, una fila por pregunta
  * (`FaqController`).
  *
@@ -23,6 +24,12 @@ class PaginaLegalController extends Controller
     public function privacidad(ContentController $contenido)
     {
         return $this->abrir($contenido, 'privacidad', 'La política de privacidad');
+    }
+
+    /** Desde el 13/10, con el documento del cliente. Ver la migración `2025_02_11_000002`. */
+    public function terminos(ContentController $contenido)
+    {
+        return $this->abrir($contenido, 'terminos-y-condiciones', 'La página de términos y condiciones');
     }
 
     private function abrir(ContentController $contenido, string $slug, string $nombre)

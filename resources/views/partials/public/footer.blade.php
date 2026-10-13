@@ -26,9 +26,11 @@
                  style="height:68px;width:auto;object-fit:contain;">
         </a>
 
-        {{-- Punto 7 del 09/10: las preguntas frecuentes, bajo la privacidad. --}}
+        {{-- Punto 7 del 09/10: las preguntas frecuentes, bajo la privacidad.
+             Desde el 13/10, también los términos y condiciones. --}}
         <div style="display:flex;flex-direction:column;gap:6px;">
             <a class="textlink" href="{{ url('/privacidad') }}" style="font-size:14px;">Política de privacidad</a>
+            <a class="textlink" href="{{ url('/terminos-y-condiciones') }}" style="font-size:14px;" data-pie-terminos>Términos y condiciones</a>
             <a class="textlink" href="{{ url('/preguntas-frecuentes') }}" style="font-size:14px;" data-pie-faq>Preguntas frecuentes</a>
         </div>
 
