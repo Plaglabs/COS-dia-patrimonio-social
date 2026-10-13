@@ -1,4 +1,5 @@
 {
+    "name": "ong-laravel",
     "private": true,
     "type": "module",
     "scripts": {

@@ -1,0 +1,54 @@
+name: cos-dps
+
+services:
+  laravel:
+    build:
+      context: ..
+      dockerfile: .docker/dev.Dockerfile
+    volumes:
+      - ../.:/app
+      # node_modules en un volumen: las dependencias nativas de Vite (rollup,
+      # esbuild) son de Linux dentro y de macOS fuera, y no pueden compartirse.
+      - laravelmods:/app/node_modules
+    ports:
+      - 8000:8000 # la aplicación
+      - 5173:5173 # Vite, con recarga en caliente
+    depends_on:
+      mysql:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+  # Las credenciales van fijas y tienen que coincidir con las DB_* del .env
+  # (.env.example ya trae estas). Es una base de desarrollo que no sale del
+  # equipo: no expone puerto al host.
+  mysql:
+    image: mysql:8.4
+    volumes:
+      - mysqldata:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=dps
+      - MYSQL_DATABASE=dps
+      - MYSQL_USER=dps
+      - MYSQL_PASSWORD=dps
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-udps", "-pdps", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  # Todo el correo que manda la aplicación acaba aquí: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - 8025:8025
+    logging:
+      driver: none
+    restart: unless-stopped
+
+volumes:
+  laravelmods:
+  mysqldata:
