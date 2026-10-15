@@ -3,8 +3,13 @@
 @section('meta', $page->meta_descripcion ?? '')
 
 @section('content')
+@if ($page->a_lo_ancho)
+    {{-- Franjas a todo el ancho con su propio <h1> dentro: ver «Páginas a lo ancho» en app.css. --}}
+    <div class="pagina-ancha">{!! $page->contenido !!}</div>
+@else
 <article style="max-width:760px;margin:0 auto;padding:56px 40px 88px;">
     <h1 style="font-weight:800;font-size:38px;line-height:1.12;margin:0 0 24px;letter-spacing:-.02em;">{{ $page->titulo }}</h1>
     <div class="pagina-texto" style="font-size:16px;line-height:1.75;color:var(--gris-700);">{!! $page->contenido !!}</div>
 </article>
+@endif
 @endsection

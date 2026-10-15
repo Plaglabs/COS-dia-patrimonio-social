@@ -612,6 +612,32 @@ El `contenido` de la página se quedó como estaba al pasar a filas y sólo se
 pinta si no hay ninguna pregunta visible. Editarlo no cambia nada mientras las
 haya.
 
+### Las páginas que vinieron de WordPress se pintan a lo ancho
+
+`/que-es`, `/edicion-2025` y `/primera-edicion` son las tres páginas que se
+conservaron del sitio WordPress anterior, con la misma URL. Son páginas sueltas
+como las demás (se editan en Páginas), con `a_lo_ancho` encendido: la vista no
+les pone el `<h1>` ni la columna de 760px, porque son franjas de color a todo el
+ancho con su propio título dentro.
+
+- **El HTML no trae nada de WordPress.** Lo que allá eran contenedores de
+  Spectra y carruseles de Stackable se reescribió con las piezas de «Páginas a
+  lo ancho» de `app.css` (`.franja`, `.galeria`, `.contribuir`, `.cifra`). La
+  fuente está en `database/importacion/paginas/`.
+- **Se cargan a mano, una vez:** `php artisan dps:importar-paginas-wordpress`
+  (con `--simular` para ver qué haría). Es un comando y no una migración porque
+  es contenido del cliente, como el listado de organizaciones: un entorno
+  recién levantado no lo trae, y ahí `/que-es` —el destino de «Conoce más» en
+  el home— da 404 hasta que se importe. No pisa una página que ya exista,
+  tampoco en la papelera. La columna `a_lo_ancho` sí es migración.
+- **Las imágenes están en `public/img/paginas/`**, versionadas y en WebP, como
+  el resto del diseño: `dps:instalar` las indexa en la biblioteca de medios.
+- **Sin JavaScript propio.** Las galerías usan el carrusel del home
+  (`data-carousel`, `data-carousel-prev/next`); el video, la portada diferida
+  (`data-video`); y los paneles de «¿Cómo puedo contribuir?» se abren con
+  `:target`. `animateTo` apaga el scroll-snap mientras anima: con él encendido
+  cada paso se enganchaba y el desplazamiento iba a saltos.
+
 ### Los voluntariados vienen de Voluntariados Chile y no se mezclan
 
 `/voluntariados` enseña las oportunidades que publica la API de Voluntariados

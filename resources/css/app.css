@@ -4162,3 +4162,186 @@ img.org-logo {
 .faq-pestana:hover { background: var(--naranjo-100); }
 .faq-pestana.activa { background: var(--naranjo); border-color: var(--naranjo); color: #fff; }
 .faq-pestana:focus-visible { outline: 2px solid var(--naranjo); outline-offset: 3px; }
+
+/* ── Páginas a lo ancho: las que vinieron de WordPress (15/10) ──────────────
+ *
+ * «Qué es», «Edición 2025» y «Primera edición» se migraron del sitio WordPress
+ * como HTML del gestor de páginas, con `a_lo_ancho` encendido. Lo que allá
+ * eran contenedores de Spectra y carruseles de Stackable son aquí estas piezas,
+ * todas sin JavaScript propio:
+ *
+ * - `.franja` (+ `--turquesa`/`--rosa`/`--azul`/`--amarillo`): banda a todo el
+ *   ancho. `.con-ola` + `.ola-<color>` dibuja el borde de abajo ondulado con el
+ *   color de la franja siguiente, como las curvas en PNG de WordPress.
+ * - `.galeria`: fila con scroll horizontal y snap, en vez de los carruseles.
+ * - `.contribuir`: las cinco tarjetas de «¿Cómo puedo contribuir?». Cada una es
+ *   un enlace a su panel, que se abre con `:target` y se cierra volviendo a
+ *   `#contribuir`.
+ * - `.cifras` / `.cifra`: las tarjetas de resultados de cada edición.
+ * - `.franja-video`: la misma portada diferida del home (`data-video`, en
+ *   app.js), así el iframe de YouTube no carga hasta el clic.
+ */
+.pagina-ancha { overflow-x: clip; }
+.pagina-ancha img { max-width: 100%; height: auto; }
+
+.franja { position: relative; background: var(--franja-fondo, #fff); color: var(--franja-texto, var(--ink)); }
+.franja--turquesa { --franja-fondo: var(--turquesa); --franja-texto: #fff; }
+.franja--rosa { --franja-fondo: var(--rosa); --franja-texto: #fff; }
+.franja--azul { --franja-fondo: var(--teal); --franja-texto: #fff; }
+.franja--amarillo { --franja-fondo: var(--amarillo); --franja-texto: var(--ink); }
+
+.franja-dentro { position: relative; max-width: 1180px; margin: 0 auto; padding: 92px 40px; box-sizing: border-box; }
+.franja-dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 48px 60px; align-items: center; }
+
+.franja.con-ola .franja-dentro { padding-bottom: calc(92px + clamp(36px, 6vw, 84px)); }
+.franja.con-ola::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px;
+    height: clamp(36px, 6vw, 84px); background: var(--ola, #fff); pointer-events: none;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 90' preserveAspectRatio='none'%3E%3Cpath d='M0 38C240 96 470 4 720 30s500 62 720 6v54H0z'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 90' preserveAspectRatio='none'%3E%3Cpath d='M0 38C240 96 470 4 720 30s500 62 720 6v54H0z'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+}
+.ola-blanco { --ola: #fff; }
+.ola-rosa { --ola: var(--rosa); }
+.ola-amarillo { --ola: var(--amarillo); }
+
+.franja h1, .franja h2 { font-family: var(--font-title); font-weight: 800; line-height: 1.12; letter-spacing: -.01em; margin: 0 0 22px; color: inherit; }
+.franja h1 { font-size: clamp(34px, 4.2vw, 48px); }
+.franja h2 { font-size: clamp(28px, 3.2vw, 38px); }
+.franja h2:last-child { margin-bottom: 0; }
+.franja p { font-size: 17px; line-height: 1.65; margin: 0 0 16px; }
+.franja p:last-child { margin-bottom: 0; }
+.franja-remate { font-weight: 700; }
+.franja-centro { text-align: center; }
+
+.franja-anio {
+    display: inline-block; margin: 0 0 20px; padding: 8px 16px; border-radius: 10px;
+    background: #fff; color: var(--amarillo); font-family: var(--font-title); font-weight: 800; font-size: 32px; line-height: 1;
+}
+.franja-logo { display: block; width: min(240px, 60%); margin: 0 0 26px auto; }
+.franja-foto { display: block; width: 100%; border-radius: 26px; box-shadow: 0 26px 50px -28px rgba(0, 0, 0, .5); }
+/* El dibujo de líneas del hero de 2024, detrás del texto. */
+.franja-adorno { position: absolute; left: 0; bottom: 0; width: min(620px, 62%); pointer-events: none; }
+
+.franja-video {
+    position: relative; cursor: pointer; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9;
+    background: #000; box-shadow: 0 26px 50px -28px rgba(0, 0, 0, .6);
+}
+.franja-video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.franja-video-play { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0, 0, 0, .18); transition: background .2s ease; }
+.franja-video-play span {
+    width: 76px; height: 76px; border-radius: 999px; background: var(--naranjo);
+    display: grid; place-items: center; box-shadow: 0 10px 28px -8px rgba(229, 114, 0, .7);
+}
+.franja-video-play svg { margin-left: 4px; }
+.franja-video:hover .franja-video-play { background: rgba(0, 0, 0, .08); }
+.franja-video:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+/* Galerías con scroll: las slides ya traen sus esquinas redondeadas. Sin
+   barra de scroll, como los carruseles del home: se mueven con las flechas,
+   arrastrando o con el teclado. El snap, sólo en pantallas táctiles (abajo,
+   en `hover: none`): con mouse se mueven con las flechas, que animan suave. */
+.galeria {
+    display: flex; gap: 16px; margin: 0; padding: 4px 0; list-style: none;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+.galeria::-webkit-scrollbar { display: none; }
+.galeria > li { flex: 0 0 auto; scroll-snap-align: start; }
+.galeria img { display: block; }
+.galeria:focus-visible { outline: 2px solid var(--naranjo); outline-offset: 4px; border-radius: 8px; }
+.galeria--slides img { width: min(820px, 84vw); height: auto; }
+.galeria--fila img { height: clamp(160px, 24vw, 280px); width: auto; }
+.galerias { margin-top: 56px; }
+/* Las flechas usan el carrusel del home (`data-carousel-prev/next`, en app.js),
+   que vuelve al principio al pasar del final. Van con `top` y no con
+   `transform`: el hover de `.icon-btn` ya usa `transform: scale()`. */
+.galeria-marco { position: relative; }
+.galeria-marco + .galeria-marco { margin-top: 18px; }
+.galeria-boton { position: absolute; z-index: 1; top: calc(50% - 22px); box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .45); }
+.galeria-boton--atras { left: 10px; }
+.galeria-boton--adelante { right: 10px; }
+
+/* «¿Cómo puedo contribuir?»: la pregunta aparece al pasar o enfocar, y la
+   tarjeta crece hacia arriba sin mover a las otras, como en WordPress: cada
+   una va anclada al fondo de una celda de alto fijo. En pantallas táctiles,
+   que no tienen hover, la pregunta se ve siempre y las tarjetas vuelven al
+   flujo normal (abajo, en `hover: none`). */
+.contribuir { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin: 120px 0 0; padding: 0; list-style: none; }
+.contribuir > li { position: relative; height: 240px; }
+.contribuir-tarjeta {
+    position: absolute; left: 0; right: 0; bottom: 0; min-height: 100%;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 22px 14px 16px; border-radius: 20px; box-sizing: border-box;
+    background: var(--tarjeta); color: #fff; text-align: center; text-decoration: none;
+    transition: box-shadow .2s ease;
+}
+.contribuir-tarjeta:hover, .contribuir-tarjeta:focus-visible { box-shadow: 0 18px 30px -18px rgba(0, 0, 0, .55); }
+.contribuir-tarjeta:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.contribuir-tarjeta img { width: 96px; }
+.contribuir-pregunta { font-size: 13.5px; line-height: 1.4; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .3s ease, opacity .3s ease; }
+.contribuir-tarjeta:hover .contribuir-pregunta,
+.contribuir-tarjeta:focus-visible .contribuir-pregunta { max-height: 9em; opacity: 1; }
+.contribuir-nombre {
+    display: block; width: 100%; margin-top: auto; padding: 9px 10px; border-radius: 999px; box-sizing: border-box;
+    background: rgba(0, 0, 0, .3); font-size: 13.5px; font-weight: 600; line-height: 1.3;
+}
+.tarjeta-rosa { --tarjeta: var(--rosa); }
+.tarjeta-turquesa { --tarjeta: var(--turquesa); }
+.tarjeta-azul { --tarjeta: var(--teal); }
+.tarjeta-amarillo { --tarjeta: #e0a000; }
+.tarjeta-naranjo { --tarjeta: var(--naranjo); }
+
+.contribuir-panel { display: none; margin-top: 28px; padding: 24px; border-radius: 24px; background: var(--bg-warm); scroll-margin-top: 110px; }
+.contribuir-panel:target { display: block; }
+.contribuir-panel-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 0 0 16px; }
+.contribuir-panel h3 { margin: 0; font-family: var(--font-title); font-size: 22px; font-weight: 800; }
+.contribuir-cerrar {
+    flex: 0 0 auto; padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--naranjo);
+    color: var(--naranjo-600); background: #fff; font-weight: 700; font-size: 14px; text-decoration: none;
+}
+.contribuir-cerrar:hover { background: var(--naranjo-100); }
+#contribuir { scroll-margin-top: 110px; }
+
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 24px; margin: 56px 0 0; padding: 0; list-style: none; }
+.cifras--dos { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.cifra {
+    display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%;
+    padding: 26px 22px 28px; border-radius: 24px; box-sizing: border-box;
+    background: var(--naranjo); color: var(--ink); text-align: center;
+}
+.cifra--blanca { background: #fff; box-shadow: 0 20px 40px -30px rgba(0, 0, 0, .4); }
+.cifra img { width: 120px; margin-bottom: 6px; }
+.cifra h3 { margin: 0; font-family: var(--font-title); font-size: 21px; font-weight: 800; line-height: 1.25; }
+.cifra p { margin: 0; font-size: 15px; line-height: 1.45; }
+.cifra a.textlink { color: var(--naranjo-600); font-weight: 600; }
+.cifra-redes { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
+
+@media (hover: none) {
+    .galeria { scroll-snap-type: x mandatory; }
+    .contribuir { margin-top: 48px; }
+    .contribuir > li { height: auto; }
+    .contribuir-tarjeta { position: static; height: 100%; min-height: 240px; }
+    .contribuir-pregunta { max-height: none; opacity: 1; }
+}
+@media (max-width: 1020px) {
+    .contribuir { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 760px) {
+    .franja-dentro { padding: 64px 20px; }
+    .franja-dos { row-gap: 28px; }
+    .franja.con-ola .franja-dentro { padding-bottom: calc(64px + clamp(36px, 6vw, 84px)); }
+    .franja-logo { margin: 0 0 20px; }
+    .franja-adorno { width: 90%; opacity: .5; }
+}
+@media (max-width: 560px) {
+    .contribuir { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    /* La quinta, sola en su fila: centrada y del ancho de las demás. */
+    .contribuir > li:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 7px); }
+    .contribuir-panel { padding: 18px 14px; }
+    .galeria-boton { width: 36px; height: 36px; top: calc(50% - 18px); }
+    .galeria-boton--atras { left: 6px; }
+    .galeria-boton--adelante { right: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .contribuir-tarjeta, .contribuir-pregunta, .franja-video-play { transition: none; }
+}

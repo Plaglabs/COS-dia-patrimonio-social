@@ -11,11 +11,11 @@ class Page extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['titulo', 'slug', 'contenido', 'meta_descripcion', 'activo'];
+    protected $fillable = ['titulo', 'slug', 'contenido', 'meta_descripcion', 'activo', 'a_lo_ancho'];
 
     protected function casts(): array
     {
-        return ['activo' => 'boolean'];
+        return ['activo' => 'boolean', 'a_lo_ancho' => 'boolean'];
     }
 
     protected static function booted(): void

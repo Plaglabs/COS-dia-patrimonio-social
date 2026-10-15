@@ -6,8 +6,9 @@
 //       destaca, no saltarse el filtro.
 //       Desde el 13/10 las destacadas van en los primeros lugares y detrás se
 //       rellena con las próximas hasta el número de la sección, sin repetir.
-//   9 · El botón de «¿Qué es el Patrimonio Social?» lleva al sitio del DPS,
-//       en otra pestaña.
+//   9 · El botón de «¿Qué es el Patrimonio Social?» lleva a /que-es, relativo
+//       y en la misma pestaña (desde el 15/10: antes era el sitio WordPress,
+//       en otra pestaña).
 //
 // Monta seis actividades con un sello, apaga las destacadas que hubiera,
 // prueba los dos modos de la sección y lo deja todo como estaba. Lee el HTML
@@ -154,8 +155,8 @@ try {
   const i = html.indexOf('id="que-es"');
   const queEs = i < 0 ? '' : html.slice(i, html.indexOf('</section>', i));
   const boton = queEs.match(/<a href="([^"]+)"([^>]*)class="btn btn-primary/);
-  di('el botón lleva a diadelpatrimoniosocial.cl/que-es/', boton?.[1] === 'https://diadelpatrimoniosocial.cl/que-es/', boton?.[1] ?? '(sin botón)');
-  di('en otra pestaña, con rel="noopener"', /target="_blank"/.test(boton?.[2] ?? '') && /rel="noopener"/.test(boton?.[2] ?? ''));
+  di('el botón lleva a /que-es, relativo', boton?.[1] === '/que-es', boton?.[1] ?? '(sin botón)');
+  di('en la misma pestaña', boton !== null && ! /target=/.test(boton?.[2] ?? ''));
 } finally {
   tinker(`App\\Models\\Activity::where('slug', 'like', 'home-%-${SELLO}')->forceDelete(); echo 'OK';`);
   if (destacadasAntes !== '-') tinker(`App\\Models\\Activity::whereIn('id', [${destacadasAntes}])->update(['destacada' => true]); echo 'OK';`);

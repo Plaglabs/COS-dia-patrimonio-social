@@ -124,6 +124,7 @@ class ContentController extends Controller
                 'slug' => ['label' => 'URL', 'tipo' => 'text', 'reglas' => 'nullable|string|max:255', 'ayuda' => 'Se genera desde el título si lo dejas en blanco.'],
                 'meta_descripcion' => ['label' => 'Meta descripción', 'tipo' => 'text', 'reglas' => 'nullable|string|max:255'],
                 'contenido' => ['label' => 'Contenido (HTML)', 'tipo' => 'textarea', 'reglas' => 'nullable|string'],
+                'a_lo_ancho' => ['label' => 'A lo ancho (sin título ni márgenes)', 'tipo' => 'bool', 'reglas' => 'nullable|boolean', 'ayuda' => 'Para páginas con franjas a todo el ancho y su propio título dentro del contenido, como «Qué es» o las ediciones.'],
                 'activo' => ['label' => 'Visible', 'tipo' => 'bool', 'reglas' => 'nullable|boolean'],
             ],
         ],

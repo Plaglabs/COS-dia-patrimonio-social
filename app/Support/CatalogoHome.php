@@ -123,8 +123,9 @@ class CatalogoHome
                     'cuerpo' => ['label' => 'Texto', 'tipo' => 'rico', 'defecto' => '<p>Es todo aquello que construimos cuando nos unimos para cuidar, compartir y colaborar con otras personas.</p><p>Es un patrimonio vivo que se fortalece con cada acción solidaria y que nos pertenece a todas y todos.</p>'],
                     'remate' => ['label' => 'Frase destacada del final', 'tipo' => 'texto', 'defecto' => 'Nuestro mayor Patrimonio Social es la solidaridad.'],
                     'cta_texto' => ['label' => 'Botón', 'tipo' => 'texto', 'defecto' => 'Conoce más'],
-                    // Punto 9 del 08/10: la página «Qué es» del sitio del DPS. Un enlace de fuera abre en otra pestaña.
-                    'cta_enlace' => ['label' => 'A dónde lleva el botón', 'tipo' => 'enlace', 'defecto' => 'https://diadelpatrimoniosocial.cl/que-es/'],
+                    // Punto 9 del 08/10: la página «Qué es». Desde el 15/10 es una página de
+                    // este sitio (la que vino de WordPress): ruta relativa, en la misma pestaña.
+                    'cta_enlace' => ['label' => 'A dónde lleva el botón', 'tipo' => 'enlace', 'defecto' => '/que-es'],
                     'imagen' => ['label' => 'Imagen', 'tipo' => 'imagen', 'defecto' => 'img/manos-patrimonio-social.jpg'],
                     'imagen_alt' => ['label' => 'Descripción de la imagen', 'tipo' => 'texto', 'defecto' => 'Personas dándose la mano en una jornada solidaria'],
                 ],

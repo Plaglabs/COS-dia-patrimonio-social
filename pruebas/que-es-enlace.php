@@ -51,8 +51,10 @@ try {
     $poner(null, null);
     $migracion->up();
     $di('Sin fila guardada no escribe nada', $leer()->contenido === null);
+    // Desde el 15/10 el valor por defecto es la página propia, relativa: la del
+    // DPS ya es de este sitio. Lo guardado por la migración se cambia a mano.
     $seccion = App\Models\HomeSection::where('clave', 'que-es')->first();
-    $di('Y el botón lleva al sitio del DPS por defecto', $seccion->enlace('cta_enlace') === $nuevo, $seccion->enlace('cta_enlace'));
+    $di('Y el botón lleva a /que-es por defecto', $seccion->enlace('cta_enlace') === '/que-es', $seccion->enlace('cta_enlace'));
 } finally {
     DB::table('home_sections')->where('id', $fila->id)->update($antes);
 }

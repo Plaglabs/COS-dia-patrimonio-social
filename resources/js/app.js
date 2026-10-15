@@ -234,6 +234,10 @@ const animateTo = (track, target) => {
 
     if (track.__tw) cancelAnimationFrame(track.__tw);
 
+    // Con scroll-snap encendido, cada paso de la animación se engancha al
+    // punto más cercano y el movimiento sale a saltos: se apaga mientras dura.
+    track.style.scrollSnapType = 'none';
+
     const start = track.scrollLeft;
     const delta = target - start;
     const dur = 420;
@@ -247,6 +251,7 @@ const animateTo = (track, target) => {
             track.__tw = requestAnimationFrame(tick);
         } else {
             track.__tw = null;
+            track.style.scrollSnapType = '';
         }
     };
 
