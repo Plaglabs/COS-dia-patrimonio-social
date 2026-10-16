@@ -112,6 +112,7 @@ class ContentController extends Controller
                 'titulo' => ['label' => 'Título', 'tipo' => 'text', 'reglas' => 'required|string|max:255'],
                 'descripcion' => ['label' => 'Descripción', 'tipo' => 'textarea', 'reglas' => 'nullable|string|max:2000'],
                 'imagen' => ['label' => 'Imagen', 'tipo' => 'imagen', 'reglas' => 'nullable|string|max:255'],
+                'enlace' => ['label' => 'A dónde lleva la tarjeta', 'tipo' => 'text', 'reglas' => 'nullable|string|max:255', 'ayuda' => 'La página de la edición, por ejemplo /edicion-2025 o /primera-edicion. Vacío, la tarjeta del home no lleva a ninguna parte.'],
                 'activo' => ['label' => 'Visible', 'tipo' => 'bool', 'reglas' => 'nullable|boolean'],
             ],
         ],

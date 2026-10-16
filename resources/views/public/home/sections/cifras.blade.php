@@ -25,7 +25,15 @@
             @endif
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:{{ filled($tituloEdiciones) ? '26px' : '52px' }};text-align:left;">
                 @foreach ($ediciones as $e)
-                    <article class="reveal" style="background:#fff;border:1px solid #eef0f1;border-radius:18px;overflow:hidden;">
+                    {{-- 16/10: con enlace, la tarjeta entera lleva a la página de su edición. --}}
+                    @php
+                        $destinoEdicion = $e->destino();
+                        $fueraEdicion = str_starts_with($destinoEdicion, 'http') && ! str_starts_with($destinoEdicion, url('/'));
+                    @endphp
+                    @if ($destinoEdicion)
+                    <a href="{{ $destinoEdicion }}" @if ($fueraEdicion) target="_blank" rel="noopener" @endif class="tarjeta-edicion">
+                    @endif
+                    <article class="reveal" style="background:#fff;border:1px solid #eef0f1;border-radius:18px;overflow:hidden;height:100%;box-sizing:border-box;">
                         @if ($e->imagen)
                             <div style="aspect-ratio:16/9;overflow:hidden;background:var(--gris-100);">
                                 <img loading="lazy" decoding="async" src="{{ $e->imagen_url }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -35,8 +43,14 @@
                             <div style="font-size:12.5px;font-weight:700;letter-spacing:.06em;color:var(--naranjo);text-transform:uppercase;">{{ $e->anio }}</div>
                             <h3 style="font-size:18px;font-weight:700;margin:6px 0 8px;">{{ $e->titulo }}</h3>
                             <p style="font-size:14px;line-height:1.5;margin:0;color:var(--gris);">{{ $e->descripcion }}</p>
+                            @if ($destinoEdicion)
+                                <span class="tarjeta-edicion-ver">Ver la edición →</span>
+                            @endif
                         </div>
                     </article>
+                    @if ($destinoEdicion)
+                    </a>
+                    @endif
                 @endforeach
             </div>
         @endif

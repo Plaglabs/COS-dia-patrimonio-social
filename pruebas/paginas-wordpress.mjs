@@ -11,6 +11,8 @@
 //       no carga el iframe de YouTube hasta el clic.
 //   5 · En el panel: se abren desde Páginas con «A lo ancho» marcado y se
 //       guardan sin perder nada.
+//   6 · En el home, las tarjetas de ediciones con enlace llevan a su página
+//       (16/10). Necesita alguna edición con «A dónde lleva la tarjeta».
 //
 // Las páginas tienen que estar importadas: php artisan dps:importar-paginas-wordpress
 //
@@ -214,6 +216,17 @@ try {
     const r = await p.goto(`${B}/${slug}`, { waitUntil: 'networkidle0' });
     const h1 = await p.$$eval('h1', (hs) => hs.map((h) => h.textContent.trim()));
     di(`/${slug} sigue igual después de guardar`, r.status() === 200 && h1.length === 1 && h1[0] === PAGINAS[slug].h1, `${r.status()} ${JSON.stringify(h1)}`);
+  }
+
+  t('6 · Las tarjetas de ediciones del home');
+  await p.setViewport({ width: 1440, height: 1000 });
+  await p.goto(`${B}/`, { waitUntil: 'networkidle0' });
+  const ediciones = await p.$$eval('a.tarjeta-edicion', (as) => as.map((a) => ({ href: a.getAttribute('href'), titulo: a.querySelector('h3')?.textContent.trim(), fuera: a.target === '_blank' })));
+  di('alguna tarjeta de edición lleva a su página', ediciones.length > 0, `${ediciones.length}`);
+  for (const tarjeta of ediciones) {
+    const r = await p.goto(new URL(tarjeta.href, B).href, { waitUntil: 'networkidle0' });
+    const h1 = await p.$$eval('h1', (hs) => hs.map((h) => h.textContent.trim()));
+    di(`«${tarjeta.titulo}» → ${tarjeta.href}, en la misma pestaña, y la página existe`, r.status() === 200 && h1.length === 1 && ! tarjeta.fuera, `${r.status()} ${JSON.stringify(h1)}`);
   }
 } finally {
   await nav.close();

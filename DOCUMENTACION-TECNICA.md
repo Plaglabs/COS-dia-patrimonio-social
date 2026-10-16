@@ -630,6 +630,11 @@ ancho con su propio título dentro.
   recién levantado no lo trae, y ahí `/que-es` —el destino de «Conoce más» en
   el home— da 404 hasta que se importe. No pisa una página que ya exista,
   tampoco en la papelera. La columna `a_lo_ancho` sí es migración.
+- **Las tarjetas de ediciones del home llevan a ellas** (16/10) si la edición
+  tiene «A dónde lleva la tarjeta» (`editions.enlace`), que se llena en el
+  panel: `/primera-edicion` para 2024 y `/edicion-2025` para 2025. Vacío, la
+  tarjeta no es un enlace. Pasa por `SanitizadorHtml::enlace()`, como el botón
+  de «¿Qué es…?»; uno de fuera abre en otra pestaña.
 - **Las imágenes están en `public/img/paginas/`**, versionadas y en WebP, como
   el resto del diseño: `dps:instalar` las indexa en la biblioteca de medios.
 - **Sin JavaScript propio.** Las galerías usan el carrusel del home

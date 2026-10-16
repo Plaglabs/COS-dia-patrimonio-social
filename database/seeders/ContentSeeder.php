@@ -208,6 +208,7 @@ class ContentSeeder extends Seeder
                 'descripcion' => 'Chile celebra por primera vez su Patrimonio Social, con cientos de '
                     . 'organizaciones abriendo sus puertas a la comunidad.',
                 'imagen' => 'img/construyamos-crop.png',
+                'enlace' => '/primera-edicion',
             ],
             [
                 'anio' => 2025,
@@ -215,6 +216,7 @@ class ContentSeeder extends Seeder
                 'descripcion' => 'El movimiento se expande a todas las regiones del país y suma a las '
                     . 'primeras empresas comprometidas.',
                 'imagen' => 'img/por-que-celebramos-crop.png',
+                'enlace' => '/edicion-2025',
             ],
             [
                 'anio' => 2026,
